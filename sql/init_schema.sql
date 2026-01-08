@@ -11,7 +11,7 @@ USE album_captures;
 
 -- 2) Usuari aplicació (NO root)
 -- Nota: canvia la contrasenya abans d'executar en entorn real.
-CREATE USER IF NOT EXISTS 'album_user'@'localhost' IDENTIFIED BY 'P1X2025';
+CREATE USER IF NOT EXISTS 'album_user'@'localhost' IDENTIFIED BY 'USER_PW';
 
 -- Permisos mínims: només aquesta BD
 GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, INDEX, ALTER
