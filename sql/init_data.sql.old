@@ -1,0 +1,9 @@
+-- usuaris inicials: profe, grup1, grup2...
+
+
+INSERT INTO groups (name, username, password_hash, role, active) VALUES
+('Professorat','profe','$2y$12$MtsmpYs3P04e6rqb/VsNiuRWXZL80e0/JAlkqh8fbnNiQUoG8Xctm','profe',1),
+('Grup1','grup1','$2y$12$/pNcP7GtF/VO9NCOJpvh9ufeIl9AVl8bcTaZOVYPiOeiMK2WtM0KC','group',1),
+('Grup2','grup2','$2y$12$yzTs7Ex.aYl2gvwpeOv0PuG4/Fvg5/9hdmbLh.KEMSKDvMqaot4dy','group',1);
+
+/*Hashes generats amb php -r */

@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ca">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Àlbum de captures — Login</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+</head>
+<body>
+  <main class="page">
+    <section class="shell">
+
+      <aside class="brand">
+        <img src="assets/img/logoInstitut.png" alt="Institut Mediterrània">
+        <h1>Àlbum de captures del projecte</h1>
+        <p>
+          Accés per grups i professorat. Cada grup només pot consultar i pujar les seves captures.
+          El professorat pot consultar tots els àlbums en mode lectura.
+        </p>
+        <div style="margin-top:14px;">
+          <span class="badge">0225 - Xarxes Locals</span>
+        </div>
+      </aside>
+
+      <section class="card">
+        <h2>Inicia sessió</h2>
+
+        <!-- Si vols provar errors visuals, descomenta:
+        <div class="error">Credencials incorrectes.</div>
+        -->
+
+        <form class="form" method="post" action="index.php" autocomplete="off">
+          <div>
+            <label for="username">Usuari</label>
+            <input class="input" id="username" name="username" type="text" placeholder="ex: grup1 / profe" required>
+          </div>
+
+          <div>
+            <label for="password">Contrasenya</label>
+            <input class="input" id="password" name="password" type="password" placeholder="••••••••" required>
+          </div>
+
+          <button class="btn" type="submit">Entrar</button>
+
+          <p class="meta">
+            Si ets alumne, utilitza la credencial del teu grup.
+            Si ets professor/a, entra amb el teu usuari de professorat.
+          </p>
+        </form>
+      </section>
+
+    </section>
+  </main>
+</body>
+</html>

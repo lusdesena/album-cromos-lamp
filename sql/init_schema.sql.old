@@ -1,0 +1,27 @@
+--iniciar esquema taules + constraints
+-- Taula d'usuaris/grups (inclou el rol de profe)
+
+CREATE TABLE IF NOT EXISTS groups (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	username VARCHAR(50) NOT NULL UNIQUE,
+	password_hash VARCHAR(255) NOT NULL,
+	role ENUM('group', 'profe') NOT NULL DEFAULT 'group',
+	active TINYINT(1) NOT NULL DEFAULT 1,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Taula de capturas (uploads)
+
+CREATE TABLE IF NOT EXISTS uploads (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+	group_id INT NOT NULL,
+	filename VARCHAR(255) NOT NULL,
+	original_name VARCHAR(255) NOT NULL,
+	title VARCHAR(255) DEFAULT '',
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+	INDEX idx_group_created (group_id, created_at),
+	CONSTRAINT fk_uploads_group
+		FOREIGN KEY (group_id) REFERENCES groups(id)
+		ON DELETE CASCADE
+) ENGINE=InnoDB;
