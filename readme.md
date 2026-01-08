@@ -1,7 +1,3 @@
-Aquí tens el **README.md en format 100% copy-paste**, llest per enganxar **tal qual** a l’arrel del repo (`README.md`).
-
----
-
 ````markdown
 # 📸 Àlbum de Cromos – Aplicació LAMP
 
@@ -51,7 +47,7 @@ Clona el repositori i col·loca el codi dins del web root:
 
 ```bash
 git clone https://github.com/USUARI/album-cromos-lamp.git
-sudo cp -r album-cromos-lamp/app /var/www/album
+sudo cp -r album-cromos-lamp/ /var/www/album
 ```
 
 Permisos bàsics:
@@ -113,7 +109,7 @@ Aquest script:
 * crea les taules (`groups`, `uploads`)
 
 ```bash
-mysql -u root -p < db/init_schema.sql
+mysql -u root -p < sql/init_schema.sql
 ```
 
 ---
@@ -131,7 +127,7 @@ Aquest script insereix:
 php -r 'echo password_hash("PASSWORD", PASSWORD_DEFAULT), PHP_EOL;'
 ```
 
-Substitueix els placeholders a `db/init_data.sql`:
+Substitueix els placeholders a `sql/init_data.sql`:
 
 ```
 __HASH_PROFE__
@@ -142,18 +138,12 @@ __HASH_GRUP1__
 Executa:
 
 ```bash
-mysql -u root -p < db/init_data.sql
+mysql -u root -p < sql/init_data.sql
 ```
 
 ---
 
 ## ⚙️ Configuració de l’aplicació
-
-Copia el fitxer de plantilla:
-
-```bash
-cp /var/www/album/config.sample.php /var/www/album/config.php
-```
 
 Edita `config.php` i ajusta:
 
@@ -184,9 +174,8 @@ Edita `config.php` i ajusta:
 ## 📁 Estructura del projecte
 
 ```
-app/        → aplicació web
-db/         → scripts SQL (init_schema, init_data)
-deploy/     → desplegament vhost apache
+assets/        → img + css
+sql/         → scripts SQL (init_schema, init_data)
 ```
 
 ---
@@ -197,5 +186,4 @@ Projecte pensat per:
 
 * CFGM SMX
 * Aprenentatge Basat en Projectes (ABP)
-
 
