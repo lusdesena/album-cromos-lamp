@@ -1,4 +1,4 @@
--- db/init_schema.sql
+-- sql/init_schema.sql
 -- Esquema base del projecte "Àlbum de cromos" (slots fixes)
 -- Compatible amb MariaDB / MySQL
 
