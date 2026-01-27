@@ -9,6 +9,7 @@ require_login();
    ========================= */
 const SLOTS_PER_PAGE = 4;
 const TOTAL_SLOTS    = 28; // <-- ajusta-ho al total de cromos del teu projecte (ex: 16, 20, 24...)
+const REAL_SLOTS     = 26; // <-- per no comptar els slots "dummy" 
 
 /**
  * Placeholder del nom del cromo / tasca.
@@ -125,6 +126,47 @@ if ($res) {
 }
 $stmt->close();
 
+$stmt_stats = $mysqli->prepare(
+  "SELECT status, COUNT(*) AS c
+   FROM uploads
+   WHERE group_id = ?
+   GROUP BY status"
+);
+if (!$stmt) { http_response_code(500); die('Error intern (prepare stats)'); }
+$stmt_stats->bind_param('i', $group_id);
+$stmt_stats->execute();
+$res = $stmt_stats->get_result();
+
+$stats = [
+  'validat'           => 0,
+  'pendent_validacio' => 0,
+  'rebutjat'          => 0,
+  'pendent'           => 0,
+];
+
+if ($res) {
+  while ($r = $res->fetch_assoc()) {
+    $st = (string)$r['status'];
+    if (isset($stats[$st])) $stats[$st] = (int)$r['c'];
+  }
+}
+
+/*for ($s = 1; $s <= REAL_SLOTS; $s++) {
+  if (!isset($by_slot[$s])) {
+    $stats['pendent']++;
+  } else {
+    $st = $by_slot[$s]['status'] ?? 'pendent';
+    $stats[$st] = ($stats[$st] ?? 0) + 1;
+  }
+}*/
+
+$total = REAL_SLOTS;
+$delivered = $stats['validat'] + $stats['pendent_validacio'] + $stats['rebutjat'];
+$stats['pendent'] = max(0, $total - $delivered);
+
+$stmt_stats->close();
+
+
 /* =========================
    URLs pager + return
    ========================= */
@@ -166,6 +208,23 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
             <a class="badge" href="/logout.php">Sortir</a>
           </div>
         </div>
+
+	<div class="album-progress">
+
+	  <div class="progress-bar">
+	    <div class="bar-validat" style="width: <?php echo 100*$stats['validat']/$total; ?>%"></div>
+	    <div class="bar-pendent-validacio" style="width: <?php echo 100*$stats['pendent_validacio']/$total; ?>%"></div>
+	    <div class="bar-rebutjat" style="width: <?php echo 100*$stats['rebutjat']/$total; ?>%"></div>
+	  </div>
+
+	  <div class="progress-meta">
+	    <span class="ok">✔ <?php echo $stats['validat']; ?> validats</span>
+	    <span class="wait">⏳ <?php echo $stats['pendent_validacio']; ?> entregats</span>
+	    <span class="bad">✖ <?php echo $stats['rebutjat']; ?> rebutjats</span>
+	    <span class="miss">○ <?php echo $stats['pendent']; ?> no entregats</span>
+	  </div>
+
+	</div>
 
         <div class="pager">
           <div>

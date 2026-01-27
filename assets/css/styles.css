@@ -508,3 +508,45 @@ label{
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* ===== Progrés de l'àlbum ===== */
+
+.album-progress{
+  margin: 6px 0 14px;
+}
+
+.progress-bar{
+  display:flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow:hidden;
+  background: #eee;
+  border: 1px solid var(--border);
+}
+
+.bar-validat{
+  background: #1e7f43;
+}
+
+.bar-pendent-validacio{
+  background: #ffb703;
+}
+
+.bar-rebutjat{
+  background: #b42318;
+}
+
+.progress-meta{
+  display:flex;
+  gap: 14px;
+  flex-wrap:wrap;
+  margin-top: 6px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.progress-meta .ok{ color:#1e7f43; font-weight:700; }
+.progress-meta .wait{ color:#8a5a00; font-weight:700; }
+.progress-meta .bad{ color:#b42318; font-weight:700; }
+.progress-meta .miss{ color:#555; }
+
