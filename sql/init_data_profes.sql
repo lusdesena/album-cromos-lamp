@@ -11,9 +11,8 @@ USE album_captures;
 -- DELETE FROM groups;
 
 INSERT INTO groups (name, username, password_hash, role, active) VALUES
-  ('Professorat', 'profe',  '__HASH_PROFE__', 'profe', 1),
+  ('Professorat', 'profe',  '$2y$12$uVqtVA1pk.wSnzBgq/ojD.6efMq0qFDKtrgXc97V5QEnoXXZro0pe', 'profe', 1),
+  ('Usuari de proves', 'alumnat', '$2y$12$FV/tuqXcCm0B/qpH4clkPe9SxN.Usi1WmW7CsBvTGRu0.mpVDNaX2', 'group', 1);
 
-  ('Grup 1', 'grup1', '__HASH_GRUP1__', 'group', 1),
-  ('Grup 2', 'grup2', '__HASH_GRUP2__', 'group', 1),
-  ('Grup 3', 'grup3', '__HASH_GRUP3__', 'group', 1),
-  ('Grup 4', 'grup4', '__HASH_GRUP4__', 'group', 1);
+
+

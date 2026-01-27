@@ -173,6 +173,21 @@ label{
 
 .badge:hover{ text-decoration:none; }
 
+.badge-corregir{
+  background: rgba(255,183,3,.18);   /* ambre suau */
+  color: #8a5a00;
+
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  opacity:.95;
+}
+.badge-corregir:hover{
+  background: rgba(255,183,3,.28);
+  opacity:1;
+}
+
 .error{
   background: #FFE9E9;
   border: 1px solid #FFB3B3;
@@ -298,6 +313,37 @@ label{
   border-radius: 999px;
 }
 
+/* === Estats cromos === */
+
+/* Validat — verd institucional */
+.sticker-status.status-validat{
+  color: #1e7f43;
+  background: #e6f4ea;
+  border-color: #b7e0c6;
+}
+
+/* Rebutjat — vermell suau */
+.sticker-status.status-rebutjat{
+  color: #b42318;
+  background: #fdecea;
+  border-color: #f5b5ae;
+}
+
+/* Pendent de validació — ambre */
+.sticker-status.status-pendent_validacio{
+  color: #8a5a00;
+  background: #fff4e5;
+  border-color: #ffd8a8;
+}
+
+/* Pendent — gris neutre */
+.sticker-status.status-pendent{
+  color: #555;
+  background: #f1f1f1;
+  border-color: #ddd;
+}
+
+
 .sticker-body{
   padding: 12px;
 }
@@ -346,7 +392,7 @@ label{
   font-weight: 700;
   color: var(--muted);
 }
-
+/*
 .sticker-meta{
   margin-top: 10px;
   display:flex;
@@ -360,7 +406,7 @@ label{
 .sticker-meta strong{
   color: var(--ink);
 }
-
+*/
 .sticker-foot{
   padding: 12px;
   border-top: 1px dashed rgba(12,142,145,.35);
@@ -370,6 +416,87 @@ label{
   align-items:center;
   flex-wrap: wrap;
 }
+/*
+.sticker .profe-comment.status-validat{
+  background: #e6f4ea;
+  color: #1e7f43;
+  border: 1px solid #b7e0c6;
+}
+
+.sticker .profe-comment.status-rebutjat{
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5b5ae;
+}
+
+.sticker .profe-comment.status-pendent,
+.sticker .profe-comment.status-pendent_validacio{
+  background: #f5f5f5;
+  color: #444;
+  border: 1px solid #ddd;
+}
+
+.sticker .profe-comment{
+  padding: 8px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-size: .9rem;
+  line-height: 1.35;
+}*/
+/*
+.sticker-meta .profe-comment{
+  flex: 0 0 100%;
+  padding: 8px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-size: .9rem;
+  line-height: 1.35;
+}*/
+
+/* Acceptat */
+/*.sticker-meta .profe-comment.status-validat{
+  background: #e6f4ea;
+  color: #1e7f43;
+  border: 1px solid #b7e0c6;
+}*/
+
+/* Rebutjat */
+/*.sticker-meta .profe-comment.status-rebutjat{
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5b5ae;
+}*/
+
+/* Altres */
+/*.sticker-meta .profe-comment.status-pendent,
+.sticker-meta .profe-comment.status-pendent_validacio{
+  background: #f5f5f5;
+  color: #444;
+  border: 1px solid #ddd;
+}*/
+
+.profe-comment{
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: .9rem;
+  line-height: 1.35;
+}
+
+/* Validat */
+.profe-comment.status-validat{
+  background: #e6f4ea;
+  color: #1e7f43;
+  border: 1px solid #b7e0c6;
+}
+
+/* Rebutjat */
+.profe-comment.status-rebutjat{
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5b5ae;
+}
+
 
 .btn-secondary{
   display:inline-flex;
@@ -396,3 +523,75 @@ label{
   cursor: not-allowed;
   pointer-events: none;
 }
+
+/* ===== Progrés de l'àlbum ===== */
+
+.album-progress{
+  margin: 6px 0 14px;
+}
+
+.progress-bar{
+  display:flex;
+  height: 12px;
+  border-radius: 999px;
+  overflow:hidden;
+  background: #eee;
+  border: 1px solid var(--border);
+}
+
+.bar-validat{
+  background: #1e7f43;
+}
+
+.bar-pendent-validacio{
+  background: #ffb703;
+}
+
+.bar-rebutjat{
+  background: #b42318;
+}
+
+.progress-meta{
+  display:flex;
+  gap: 14px;
+  flex-wrap:wrap;
+  margin-top: 6px;
+  font-size: .85rem;
+  color: var(--muted);
+}
+
+.progress-meta .ok{ color:#1e7f43; font-weight:700; }
+.progress-meta .wait{ color:#8a5a00; font-weight:700; }
+.progress-meta .bad{ color:#b42318; font-weight:700; }
+.progress-meta .miss{ color:#555; }
+
+
+/* Mini progrés a groups */
+
+.mini-bar{
+  height: 100%;
+  background: #1e7f43; /* verd validat */
+}
+
+.mini-progress{
+  display:flex;
+  height: 12px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.mini-progress + small{
+  color: #777;        /* gris suau */
+  font-size: .8rem;   /* lleugerament més petit (opcional) */
+}
+
+.mini-ok{   height:100%; background:#1e7f43; }
+.mini-wait{ height:100%; background:#ffb703; }
+.mini-bad{  height:100%; background:#b42318; }
+.mini-none{  height:100%; background:#ddd; /* gris neutre */
+}
+
+

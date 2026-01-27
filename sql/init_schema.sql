@@ -42,15 +42,19 @@ CREATE TABLE uploads (
   slot          INT NOT NULL,
   filename      VARCHAR(255) NOT NULL,
   original_name VARCHAR(255) NOT NULL,
+
+  status ENUM('pendent','pendent_validacio','validat','rebutjat')
+         NOT NULL DEFAULT 'pendent_validacio',
+  profe_comment TEXT NULL,
+
   created_at    TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
   CONSTRAINT fk_uploads_group
     FOREIGN KEY (group_id) REFERENCES groups(id)
     ON DELETE CASCADE,
 
-  -- IMPORTANT: un sol registre per slot dins d'un grup
   UNIQUE KEY uq_group_slot (group_id, slot),
-
-  -- Ajuda a consultes i ordenacions (opcional però útil)
   KEY idx_uploads_group_created (group_id, created_at)
 ) ENGINE=InnoDB;
+
+

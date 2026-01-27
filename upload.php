@@ -2,7 +2,10 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
-require_group();
+
+require_login();
+$is_group = is_group();
+$is_profe = is_profe();
 
 $group_id = (int)$_SESSION['user_id'];
 
@@ -12,7 +15,8 @@ $group_id = (int)$_SESSION['user_id'];
 $slot = (int)($_GET['slot'] ?? ($_POST['slot'] ?? 0));
 $return = (string)($_GET['return'] ?? ($_POST['return'] ?? '/album.php'));
 
-if ($slot <= 0) {
+// El slot només és obligatori per a pujades d’alumnat
+if ($is_group && $slot <= 0) {
     http_response_code(400);
     die('Slot incorrecte');
 }
@@ -54,9 +58,48 @@ function get_old_filename(mysqli $mysqli, int $group_id, int $slot): ?string {
 }
 
 /* =========================
+   POST Validació profe
+   ========================= */
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && $is_profe
+    && ($_POST['action'] ?? '') === 'validate'
+) {
+    csrf_verify($_POST['csrf_token'] ?? '');
+
+    $upload_id = (int)($_POST['upload_id'] ?? 0);
+    $status    = (string)($_POST['status'] ?? '');
+    $comment   = trim((string)($_POST['profe_comment'] ?? ''));
+
+    $allowed = ['validat', 'rebutjat', 'pendent_validacio'];
+    if ($upload_id <= 0 || !in_array($status, $allowed, true)) {
+        http_response_code(400);
+        die('Dades invàlides');
+    }
+
+    $stmt = $mysqli->prepare(
+        "UPDATE uploads
+         SET status = ?, profe_comment = ?
+         WHERE id = ?"
+    );
+    if (!$stmt) {
+        http_response_code(500);
+        die('Error intern (prepare validate)');
+    }
+
+    $stmt->bind_param('ssi', $status, $comment, $upload_id);
+    $stmt->execute();
+    $stmt->close();
+
+    header('Location: ' . $return);
+    exit;
+}
+
+
+/* =========================
    Processar POST
    ========================= */
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_group) {
     if (!isset($_FILES['file']) || !is_array($_FILES['file'])) {
         $error = 'No s’ha rebut cap fitxer.';
     } else {
@@ -89,12 +132,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $original = (string)($f['name'] ?? 'capture');
 
                     // UPSERT pel slot
-                    $stmt = $mysqli->prepare(
-                        "INSERT INTO uploads (group_id, slot, filename, original_name)
-                         VALUES (?, ?, ?, ?)
+		    $stmt = $mysqli->prepare(
+                        "INSERT INTO uploads (group_id, slot, filename, original_name, status, profe_comment)
+                         VALUES (?, ?, ?, ?, 'pendent_validacio', NULL)
                          ON DUPLICATE KEY UPDATE
                            filename = VALUES(filename),
                            original_name = VALUES(original_name),
+                           status = 'pendent_validacio',
+                           profe_comment = NULL,
                            created_at = CURRENT_TIMESTAMP"
                     );
 

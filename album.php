@@ -9,6 +9,7 @@ require_login();
    ========================= */
 const SLOTS_PER_PAGE = 4;
 const TOTAL_SLOTS    = 28; // <-- ajusta-ho al total de cromos del teu projecte (ex: 16, 20, 24...)
+const REAL_SLOTS     = 26; // <-- per no comptar els slots "dummy" 
 
 /**
  * Placeholder del nom del cromo / tasca.
@@ -37,7 +38,7 @@ function slot_title(int $slot): string {
         19 => '#19 — PingPC -> Servidor (RRHH)',
         20 => '#20 — PingPC -> Servidor (Finances)',
         21 => '#21 — PingPC -> Servidor (Comercial)',
-        22 => '#22 — Impressora responent (IPImpressora:643 des del navegador)',
+        22 => '#22 — Impressora responent (IPImpressora:631 des del navegador)',
         23 => '#23 — Ping google (1 PC d\'IT)',
         24 => '#24 — Ping google (1 PC de RRHH)',
         25 => '#25 — Ping google (1 PC de finances)',
@@ -105,7 +106,7 @@ $group_name = (string)$g['name'];
    (1 registre per slot per disseny UNIQUE(group_id, slot))
    ========================= */
 $stmt = $mysqli->prepare(
-    "SELECT id, slot, filename, original_name, created_at
+    "SELECT id, slot, filename, original_name, created_at, status, profe_comment
      FROM uploads
      WHERE group_id = ? AND slot BETWEEN ? AND ?"
 );
@@ -124,6 +125,47 @@ if ($res) {
     }
 }
 $stmt->close();
+
+$stmt_stats = $mysqli->prepare(
+  "SELECT status, COUNT(*) AS c
+   FROM uploads
+   WHERE group_id = ?
+   GROUP BY status"
+);
+if (!$stmt) { http_response_code(500); die('Error intern (prepare stats)'); }
+$stmt_stats->bind_param('i', $group_id);
+$stmt_stats->execute();
+$res = $stmt_stats->get_result();
+
+$stats = [
+  'validat'           => 0,
+  'pendent_validacio' => 0,
+  'rebutjat'          => 0,
+  'pendent'           => 0,
+];
+
+if ($res) {
+  while ($r = $res->fetch_assoc()) {
+    $st = (string)$r['status'];
+    if (isset($stats[$st])) $stats[$st] = (int)$r['c'];
+  }
+}
+
+/*for ($s = 1; $s <= REAL_SLOTS; $s++) {
+  if (!isset($by_slot[$s])) {
+    $stats['pendent']++;
+  } else {
+    $st = $by_slot[$s]['status'] ?? 'pendent';
+    $stats[$st] = ($stats[$st] ?? 0) + 1;
+  }
+}*/
+
+$total = REAL_SLOTS;
+$delivered = $stats['validat'] + $stats['pendent_validacio'] + $stats['rebutjat'];
+$stats['pendent'] = max(0, $total - $delivered);
+
+$stmt_stats->close();
+
 
 /* =========================
    URLs pager + return
@@ -167,6 +209,23 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
           </div>
         </div>
 
+	<div class="album-progress">
+
+	  <div class="progress-bar">
+	    <div class="bar-validat" style="width: <?php echo 100*$stats['validat']/$total; ?>%"></div>
+	    <div class="bar-pendent-validacio" style="width: <?php echo 100*$stats['pendent_validacio']/$total; ?>%"></div>
+	    <div class="bar-rebutjat" style="width: <?php echo 100*$stats['rebutjat']/$total; ?>%"></div>
+	  </div>
+
+	  <div class="progress-meta">
+	    <span class="ok">✔ <?php echo $stats['validat']; ?> validats</span>
+	    <span class="wait">⏳ <?php echo $stats['pendent_validacio']; ?> entregats</span>
+	    <span class="bad">✖ <?php echo $stats['rebutjat']; ?> rebutjats</span>
+	    <span class="miss">○ <?php echo $stats['pendent']; ?> no entregats</span>
+	  </div>
+
+	</div>
+
         <div class="pager">
           <div>
             <?php if ($page > 1): ?>
@@ -198,8 +257,21 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
 
             <article class="sticker">
               <div class="sticker-head">
-                <div class="sticker-num">CROMO #<?php echo (int)$slot; ?></div>
-                <div class="sticker-status"><?php echo $u ? 'COMPLET' : 'PENDENT'; ?></div>
+		<div class="sticker-num">CROMO #<?php echo (int)$slot; ?></div>
+		<?php
+		  $status = $u['status'] ?? 'pendent';
+
+		  $label_map = [
+		    'pendent'            => 'PENDENT',
+		    'pendent_validacio'  => 'ENTREGAT · PENDENT DE VALIDACIÓ',
+		    'validat'            => 'VALIDAT',
+		    'rebutjat'           => 'REBUTJAT',
+		  ];
+		?>
+		<div class="sticker-status status-<?php echo $status; ?>">
+		  <?php echo $label_map[$status] ?? 'PENDENT'; ?>
+		</div>
+
               </div>
 
               <div class="sticker-body">
@@ -225,7 +297,14 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
                   <?php endif; ?>
                 </div>
 
-                <div class="sticker-meta">
+		<?php if (is_group() && $u && !empty($u['profe_comment'])): ?>
+		<div class="profe-comment status-<?php echo htmlspecialchars($u['status']); ?>" style="margin-top:6px;">
+		<!--<div class="error" style="margin-top:6px;">-->
+		  <?php echo nl2br(htmlspecialchars($u['profe_comment'])); ?>
+		</div>
+		<?php endif; ?>
+
+		<div class="sticker-meta">
                   <div>
                     <div><strong>Fitxer:</strong> <?php echo htmlspecialchars($u ? (string)$u['original_name'] : '—'); ?></div>
                     <div><strong>Data:</strong> <?php echo htmlspecialchars($u ? (string)$u['created_at'] : '—'); ?></div>
@@ -268,9 +347,41 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
                     <?php endif; ?>
                   </div>
 
-                <?php else: ?>
-                  <span class="meta">Mode professorat (lectura)</span>
-                <?php endif; ?>
+		<?php else: ?>
+		  <?php if ($u): ?>
+		    <form method="post" action="/upload.php" style="margin-top:8px;">
+		      <input type="hidden" name="action" value="validate">
+		      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token()); ?>">
+		      <input type="hidden" name="upload_id" value="<?php echo (int)$u['id']; ?>">
+		      <input type="hidden" name="return" value="<?php echo htmlspecialchars($return); ?>">
+
+		      <select name="status" class="input">
+		        <?php
+		          $opts = ['pendent_validacio','validat','rebutjat'];
+		          foreach ($opts as $opt):
+		        ?>
+		          <option value="<?php echo $opt; ?>"
+		            <?php if ($u['status'] === $opt) echo 'selected'; ?>>
+		            <?php echo strtoupper(str_replace('_',' ',$opt)); ?>
+		          </option>
+		        <?php endforeach; ?>
+		      </select>
+
+		      <textarea name="profe_comment"
+		                class="input"
+		                placeholder="Comentari del professorat (opcional)"
+		                style="margin-top:6px;"><?php
+		        echo htmlspecialchars((string)($u['profe_comment'] ?? ''));
+		      ?></textarea>
+
+		      <button class="btn-secondary" type="submit" style="margin-top:6px;">
+		        Desa validació
+		      </button>
+		    </form>
+		  <?php else: ?>
+		    <span class="meta">Sense entrega</span>
+		  <?php endif; ?>
+		<?php endif; ?>
               </div>
             </article>
 
