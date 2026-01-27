@@ -173,6 +173,21 @@ label{
 
 .badge:hover{ text-decoration:none; }
 
+.badge-corregir{
+  background: rgba(255,183,3,.18);   /* ambre suau */
+  color: #8a5a00;
+
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  opacity:.95;
+}
+.badge-corregir:hover{
+  background: rgba(255,183,3,.28);
+  opacity:1;
+}
+
 .error{
   background: #FFE9E9;
   border: 1px solid #FFB3B3;
@@ -549,4 +564,34 @@ label{
 .progress-meta .wait{ color:#8a5a00; font-weight:700; }
 .progress-meta .bad{ color:#b42318; font-weight:700; }
 .progress-meta .miss{ color:#555; }
+
+
+/* Mini progrés a groups */
+
+.mini-bar{
+  height: 100%;
+  background: #1e7f43; /* verd validat */
+}
+
+.mini-progress{
+  display:flex;
+  height: 12px;
+  background: #eee;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+
+.mini-progress + small{
+  color: #777;        /* gris suau */
+  font-size: .8rem;   /* lleugerament més petit (opcional) */
+}
+
+.mini-ok{   height:100%; background:#1e7f43; }
+.mini-wait{ height:100%; background:#ffb703; }
+.mini-bad{  height:100%; background:#b42318; }
+.mini-none{  height:100%; background:#ddd; /* gris neutre */
+}
+
 
