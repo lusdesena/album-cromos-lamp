@@ -298,6 +298,37 @@ label{
   border-radius: 999px;
 }
 
+/* === Estats cromos === */
+
+/* Validat — verd institucional */
+.sticker-status.status-validat{
+  color: #1e7f43;
+  background: #e6f4ea;
+  border-color: #b7e0c6;
+}
+
+/* Rebutjat — vermell suau */
+.sticker-status.status-rebutjat{
+  color: #b42318;
+  background: #fdecea;
+  border-color: #f5b5ae;
+}
+
+/* Pendent de validació — ambre */
+.sticker-status.status-pendent_validacio{
+  color: #8a5a00;
+  background: #fff4e5;
+  border-color: #ffd8a8;
+}
+
+/* Pendent — gris neutre */
+.sticker-status.status-pendent{
+  color: #555;
+  background: #f1f1f1;
+  border-color: #ddd;
+}
+
+
 .sticker-body{
   padding: 12px;
 }
@@ -346,7 +377,7 @@ label{
   font-weight: 700;
   color: var(--muted);
 }
-
+/*
 .sticker-meta{
   margin-top: 10px;
   display:flex;
@@ -360,7 +391,7 @@ label{
 .sticker-meta strong{
   color: var(--ink);
 }
-
+*/
 .sticker-foot{
   padding: 12px;
   border-top: 1px dashed rgba(12,142,145,.35);
@@ -370,6 +401,87 @@ label{
   align-items:center;
   flex-wrap: wrap;
 }
+/*
+.sticker .profe-comment.status-validat{
+  background: #e6f4ea;
+  color: #1e7f43;
+  border: 1px solid #b7e0c6;
+}
+
+.sticker .profe-comment.status-rebutjat{
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5b5ae;
+}
+
+.sticker .profe-comment.status-pendent,
+.sticker .profe-comment.status-pendent_validacio{
+  background: #f5f5f5;
+  color: #444;
+  border: 1px solid #ddd;
+}
+
+.sticker .profe-comment{
+  padding: 8px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-size: .9rem;
+  line-height: 1.35;
+}*/
+/*
+.sticker-meta .profe-comment{
+  flex: 0 0 100%;
+  padding: 8px 10px;
+  margin-top: 6px;
+  border-radius: 6px;
+  font-size: .9rem;
+  line-height: 1.35;
+}*/
+
+/* Acceptat */
+/*.sticker-meta .profe-comment.status-validat{
+  background: #e6f4ea;
+  color: #1e7f43;
+  border: 1px solid #b7e0c6;
+}*/
+
+/* Rebutjat */
+/*.sticker-meta .profe-comment.status-rebutjat{
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5b5ae;
+}*/
+
+/* Altres */
+/*.sticker-meta .profe-comment.status-pendent,
+.sticker-meta .profe-comment.status-pendent_validacio{
+  background: #f5f5f5;
+  color: #444;
+  border: 1px solid #ddd;
+}*/
+
+.profe-comment{
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: .9rem;
+  line-height: 1.35;
+}
+
+/* Validat */
+.profe-comment.status-validat{
+  background: #e6f4ea;
+  color: #1e7f43;
+  border: 1px solid #b7e0c6;
+}
+
+/* Rebutjat */
+.profe-comment.status-rebutjat{
+  background: #fdecea;
+  color: #b42318;
+  border: 1px solid #f5b5ae;
+}
+
 
 .btn-secondary{
   display:inline-flex;

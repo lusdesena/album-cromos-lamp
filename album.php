@@ -37,7 +37,7 @@ function slot_title(int $slot): string {
         19 => '#19 — PingPC -> Servidor (RRHH)',
         20 => '#20 — PingPC -> Servidor (Finances)',
         21 => '#21 — PingPC -> Servidor (Comercial)',
-        22 => '#22 — Impressora responent (IPImpressora:643 des del navegador)',
+        22 => '#22 — Impressora responent (IPImpressora:631 des del navegador)',
         23 => '#23 — Ping google (1 PC d\'IT)',
         24 => '#24 — Ping google (1 PC de RRHH)',
         25 => '#25 — Ping google (1 PC de finances)',
@@ -105,7 +105,7 @@ $group_name = (string)$g['name'];
    (1 registre per slot per disseny UNIQUE(group_id, slot))
    ========================= */
 $stmt = $mysqli->prepare(
-    "SELECT id, slot, filename, original_name, created_at
+    "SELECT id, slot, filename, original_name, created_at, status, profe_comment
      FROM uploads
      WHERE group_id = ? AND slot BETWEEN ? AND ?"
 );
@@ -198,8 +198,21 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
 
             <article class="sticker">
               <div class="sticker-head">
-                <div class="sticker-num">CROMO #<?php echo (int)$slot; ?></div>
-                <div class="sticker-status"><?php echo $u ? 'COMPLET' : 'PENDENT'; ?></div>
+		<div class="sticker-num">CROMO #<?php echo (int)$slot; ?></div>
+		<?php
+		  $status = $u['status'] ?? 'pendent';
+
+		  $label_map = [
+		    'pendent'            => 'PENDENT',
+		    'pendent_validacio'  => 'ENTREGAT · PENDENT DE VALIDACIÓ',
+		    'validat'            => 'VALIDAT',
+		    'rebutjat'           => 'REBUTJAT',
+		  ];
+		?>
+		<div class="sticker-status status-<?php echo $status; ?>">
+		  <?php echo $label_map[$status] ?? 'PENDENT'; ?>
+		</div>
+
               </div>
 
               <div class="sticker-body">
@@ -225,7 +238,14 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
                   <?php endif; ?>
                 </div>
 
-                <div class="sticker-meta">
+		<?php if (is_group() && $u && !empty($u['profe_comment'])): ?>
+		<div class="profe-comment status-<?php echo htmlspecialchars($u['status']); ?>" style="margin-top:6px;">
+		<!--<div class="error" style="margin-top:6px;">-->
+		  <?php echo nl2br(htmlspecialchars($u['profe_comment'])); ?>
+		</div>
+		<?php endif; ?>
+
+		<div class="sticker-meta">
                   <div>
                     <div><strong>Fitxer:</strong> <?php echo htmlspecialchars($u ? (string)$u['original_name'] : '—'); ?></div>
                     <div><strong>Data:</strong> <?php echo htmlspecialchars($u ? (string)$u['created_at'] : '—'); ?></div>
@@ -268,9 +288,41 @@ $return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : ""
                     <?php endif; ?>
                   </div>
 
-                <?php else: ?>
-                  <span class="meta">Mode professorat (lectura)</span>
-                <?php endif; ?>
+		<?php else: ?>
+		  <?php if ($u): ?>
+		    <form method="post" action="/upload.php" style="margin-top:8px;">
+		      <input type="hidden" name="action" value="validate">
+		      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token()); ?>">
+		      <input type="hidden" name="upload_id" value="<?php echo (int)$u['id']; ?>">
+		      <input type="hidden" name="return" value="<?php echo htmlspecialchars($return); ?>">
+
+		      <select name="status" class="input">
+		        <?php
+		          $opts = ['pendent_validacio','validat','rebutjat'];
+		          foreach ($opts as $opt):
+		        ?>
+		          <option value="<?php echo $opt; ?>"
+		            <?php if ($u['status'] === $opt) echo 'selected'; ?>>
+		            <?php echo strtoupper(str_replace('_',' ',$opt)); ?>
+		          </option>
+		        <?php endforeach; ?>
+		      </select>
+
+		      <textarea name="profe_comment"
+		                class="input"
+		                placeholder="Comentari del professorat (opcional)"
+		                style="margin-top:6px;"><?php
+		        echo htmlspecialchars((string)($u['profe_comment'] ?? ''));
+		      ?></textarea>
+
+		      <button class="btn-secondary" type="submit" style="margin-top:6px;">
+		        Desa validació
+		      </button>
+		    </form>
+		  <?php else: ?>
+		    <span class="meta">Sense entrega</span>
+		  <?php endif; ?>
+		<?php endif; ?>
               </div>
             </article>
 
