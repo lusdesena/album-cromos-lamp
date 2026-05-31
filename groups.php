@@ -51,7 +51,10 @@ $progress_total = max(1, $stickers_total);
       <section class="card">
         <div class="row">
           <h2>Grups (lectura)</h2>
-          <a class="badge" href="<?php echo BASE_URL; ?>/logout.php">Sortir</a>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <a class="badge" href="<?php echo BASE_URL; ?>/admin_settings.php">Configuració</a>
+            <a class="badge" href="<?php echo BASE_URL; ?>/logout.php">Sortir</a>
+          </div>
         </div>
 
         <p class="meta">
