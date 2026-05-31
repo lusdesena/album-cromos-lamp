@@ -20,7 +20,7 @@ if (is_group()) {
     }
 }
 if ($group_id <= 0) {
-    header('Location: ' . BASE_URL . '/login.html');
+    header('Location: ' . BASE_URL . '/login.php');
     exit;
 }
 
@@ -46,6 +46,9 @@ $group_name = (string)$g['name'];
 $stickers = get_stickers_map($mysqli);
 $stickers_total = get_visible_enabled_stickers_count($mysqli);
 $max_sticker_slot = get_max_visible_enabled_sticker_slot($mysqli);
+$app_settings = get_app_settings_map($mysqli);
+$album_title = $app_settings['album_brief'] ?? 'Àlbum de cromos';
+$institution_name = $app_settings['institution_name'] ?? 'Institut Mediterrània';
 
 /* =========================
    Blocs visibles del grup (per progrés global)
@@ -415,7 +418,7 @@ if (!$mode_tots) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Àlbum — <?php echo htmlspecialchars($group_name); ?></title>
+  <title><?php echo htmlspecialchars($album_title); ?> — <?php echo htmlspecialchars($group_name); ?></title>
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
@@ -426,9 +429,9 @@ if (!$mode_tots) {
 	<div class="album-header">
 	  <div class="album-header-top">
             <div class="album-brand">
-              <img src="<?php echo BASE_URL; ?>/assets/img/logoInstitut.png" alt="Institut">
+              <img src="<?php echo BASE_URL; ?>/assets/img/logoInstitut.png" alt="<?php echo htmlspecialchars($institution_name); ?>">
               <div>
-                <h1 class="album-title">Àlbum de cromos — <?php echo htmlspecialchars($group_name); ?></h1>
+                <h1 class="album-title"><?php echo htmlspecialchars($album_title); ?> — <?php echo htmlspecialchars($group_name); ?></h1>
                 <p class="album-sub">
                   Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong>
                   (rol: <?php echo htmlspecialchars((string)($_SESSION['role'] ?? '')); ?>)

@@ -288,3 +288,238 @@ La nova direcció del projecte prioritza:
 * refactors incrementals
 * compatibilitat amb múltiples instàncies
 
+## Lectura dinàmica de stickers
+
+S’ha completat la primera fase funcional de desacoblament dels cromos respecte del codi PHP.
+
+Ara:
+
+* els títols visibles dels stickers es llegeixen des de la BD (`stickers`)
+* `album.php` carrega metadata dinàmica amb:
+
+  * `get_stickers_map()`
+  * `get_sticker()`
+
+La càrrega es fa:
+
+* una sola vegada per request
+* amb cache estàtica a helper
+* amb fallback segur
+
+Inicialment es va mantenir:
+
+* `slot_title()`
+* constants històriques (`TOTAL_SLOTS`, `REAL_SLOTS`)
+
+per garantir:
+
+* reversibilitat
+* estabilitat
+* compatibilitat temporal
+
+## Situació arquitectònica actual
+
+Els stickers ja no depenen funcionalment de dades hardcoded.
+
+Això permet:
+
+* modificar títols des de SQL
+* afegir nous stickers sense tocar PHP
+* preparar backend admin
+* preparar configuració multiinstància
+
+Aquest és probablement el primer gran desacoblament arquitectònic real del projecte.
+
+## Helpers introduïts
+
+A `helpers.php`:
+
+* `get_stickers_map(mysqli $mysqli): array`
+* `get_sticker(mysqli $mysqli, int $slot): ?array`
+
+Objectius:
+
+* centralitzar lectura de metadata
+* evitar múltiples queries repetides
+* preparar futures capes de configuració
+
+## Validació funcional realitzada
+
+S’ha validat:
+
+* càrrega correcta dels títols
+* lectura des de BD
+* modificació live d’un títol via SQL
+* persistència correcta del comportament existent
+
+No s’han detectat regressions visibles.
+
+## Proper pas previst
+
+El següent pas previst és:
+
+* eliminar definitivament `slot_title()`
+* substituir fallback per text genèric
+* completar el desacoblament de metadata hardcoded
+
+Després:
+
+* textos configurables
+* backend admin mínim
+* generació neta de noves instàncies
+
+## Reflexió arquitectònica
+
+La migració progressiva cap a metadata persistent està demostrant ser molt menys arriscada del que semblava inicialment.
+
+La combinació:
+
+* migracions SQL explícites
+* refactors petits
+* fallback temporal
+* validació incremental
+
+està permetent evolucionar el prototip sense reescriptures massives.
+
+## Punt 2 completat — lectura dinàmica de cromos
+
+S’ha completat la migració funcional dels cromos cap a metadata persistent en BD.
+
+Ja no existeixen:
+
+* mappings hardcoded de títols
+* dependència funcional de `slot_title()`
+* dependència principal de `REAL_SLOTS` per al progrés
+
+Ara:
+
+* els títols es llegeixen des de `stickers`
+* els comptadors i percentatges es calculen des de BD
+* el màxim de slots visibles es calcula dinàmicament
+
+Helpers nous:
+
+* `get_visible_enabled_stickers_count()`
+* `get_max_visible_enabled_sticker_slot()`
+
+El projecte ja no depèn estructuralment de constants hardcoded per representar els cromos.
+
+Això permet:
+
+* múltiples àlbums diferents
+* ampliació de stickers sense tocar PHP
+* configuració persistent
+* preparació per backend admin
+
+## Situació arquitectònica actual
+
+En aquest punt:
+
+* runtime/configuració desacoblats
+* metadata de stickers desacoblada
+* comptadors desacoblats
+* base multiinstància funcional
+
+L’aplicació continua sent procedural expressament, però ja amb una separació molt més clara entre:
+
+* configuració
+* dades persistents
+* lògica de presentació
+
+## Proper objectiu
+
+Punt 3:
+
+* textos configurables (`app_settings`)
+
+Objectiu:
+eliminar textos UI hardcoded importants i preparar personalització per instància.
+
+Primers candidats:
+
+* títol de l’àlbum
+* subtítol
+* nom del projecte
+* nom de la institució
+
+## Punt 3 iniciat — textos configurables
+
+S’ha introduït una primera capa de configuració persistent d’interfície via BD.
+
+Nova taula:
+
+* `app_settings`
+
+Migració:
+
+* `sql/2026_05_29_create_app_settings.sql`
+
+Objectiu:
+desacoblar textos visibles del codi PHP i preparar personalització per instància.
+
+## Helpers introduïts
+
+A `helpers.php`:
+
+* `get_app_settings_map(mysqli $mysqli): array`
+* `get_app_setting(mysqli $mysqli, string $key, string $default = ''): string`
+
+Característiques:
+
+* cache intern estàtic
+* fallback segur
+* tolerància a errors de BD
+
+## Pantalla de login configurable
+
+S’ha introduït:
+
+* `login.php`
+
+basat en l’antic `login.html`, però ara:
+
+* carregant `bootstrap.php`
+* llegint textos des de `app_settings`
+
+Textos actualment configurables:
+
+* `album_title`
+* `album_brief`
+* `album_subtitle`
+* `project_name`
+* `institution_name`
+* `module_label`
+* `login_instructions`
+
+## Canvi conceptual important
+
+Durant el desenvolupament s’ha detectat una diferència conceptual entre:
+
+* el nom curt de l’àlbum visible dins l’aplicació
+* el títol principal/promocional visible a la pantalla de login
+
+Per això:
+
+* `album_title` passa a representar el títol principal
+* `album_brief` representa el nom curt usat a `album.php`
+
+## Situació actual de login.html
+
+`login.html` continua existint temporalment només per compatibilitat.
+
+Actualment:
+
+* `login.php` és la pantalla funcional principal
+* alguns redirects locals/no versionats encara apunten a `login.html`
+* la seva eliminació definitiva es farà més endavant durant la neteja d’autenticació/configuració
+
+## Capacitats ja assolides
+
+En aquest punt ja és possible:
+
+* desplegar múltiples instàncies
+* personalitzar textos principals via SQL
+* canviar branding sense modificar PHP
+* reutilitzar el mateix codi base per diferents projectes/mòduls
+
+Aquest és un altre desacoblament arquitectònic important del projecte.

@@ -97,6 +97,38 @@ function get_max_visible_enabled_sticker_slot(mysqli $mysqli): int
     return $max_slot;
 }
 
+function get_app_settings_map(mysqli $mysqli): array
+{
+    try {
+        $res = $mysqli->query("SELECT setting_key, setting_value FROM app_settings");
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    if (!$res) {
+        return [];
+    }
+
+    $settings = [];
+    while ($row = $res->fetch_assoc()) {
+        $settings[(string)$row['setting_key']] = (string)$row['setting_value'];
+    }
+    $res->free();
+
+    return $settings;
+}
+
+function get_app_setting(mysqli $mysqli, string $key, string $default = ''): string
+{
+    static $settings = null;
+
+    if ($settings === null) {
+        $settings = get_app_settings_map($mysqli);
+    }
+
+    return $settings[$key] ?? $default;
+}
+
 function bloc_editable_per_slot(mysqli $mysqli, int $group_id, int $slot): bool
 {
     $stmt = $mysqli->prepare(

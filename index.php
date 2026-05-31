@@ -4,7 +4,7 @@ declare(strict_types=1);
 /*
  * index.php
  * Backend de login (controlador)
- * - Rep POST des de login.html
+ * - Rep POST des de login.php
  * - Valida usuari i contrasenya
  * - Crea sessió
  * - Redirigeix segons rol
@@ -28,7 +28,7 @@ if (is_logged_in()) {
    Només acceptem POST
    ========================= */
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . BASE_URL . '/login.html');
+    header('Location: ' . BASE_URL . '/login.php');
     exit;
 }
 

@@ -73,7 +73,7 @@ function is_group(): bool {
  */
 function require_login(): void {
     if (!is_logged_in()) {
-        header('Location: ' . BASE_URL . '/login.html');
+        header('Location: ' . BASE_URL . '/login.php');
         exit;
     }
 }
@@ -116,4 +116,3 @@ function csrf_verify(?string $token): void {
         die('CSRF token invàlid');
     }
 }
-
