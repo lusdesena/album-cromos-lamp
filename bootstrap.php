@@ -18,3 +18,19 @@ if (!defined('UPLOADS_URL')) {
 }
 
 require_once __DIR__ . '/config.php';
+
+if (!function_exists('is_admin')) {
+    function is_admin(): bool {
+        return is_logged_in() && $_SESSION['role'] === 'admin';
+    }
+}
+
+if (!function_exists('require_admin')) {
+    function require_admin(): void {
+        require_login();
+        if (!is_admin()) {
+            http_response_code(403);
+            die('Accés denegat');
+        }
+    }
+}

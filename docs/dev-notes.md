@@ -293,10 +293,14 @@ gestionar stickers des de la pròpia aplicació.
 
 Abast previst:
 
-* editar títols i descripcions
-* activar/desactivar stickers
-* marcar visibilitat i obligatorietat
-* revisar ordre i associació amb blocs
+* editar títols
+* editar associació amb blocs
+
+TODO futur, de prioritat baixa fins que `album.php` renderitzi plenament des de `stickers`:
+
+* `description`: reservat per a futurs tooltips o pantalles de detall.
+* `visible`, `enabled` i `required`: necessiten una semàntica més clara de renderitzat de l’àlbum abans d’exposar-los.
+* `sort_order`: està persistit, però l’ordre visual de l’àlbum encara no es basa completament en aquest camp.
 
 ### Fase 4.3 Admin Usuaris i Grups
 
@@ -344,3 +348,21 @@ La direcció del projecte prioritza:
 * estabilitat sobre sofisticació
 
 La combinació de migracions petites, fallbacks temporals i validació incremental està permetent evolucionar el prototip sense reescriure’l.
+
+## Rol admin
+
+S’ha introduït el rol `admin` com a extensió del rol `profe`.
+
+Objectiu:
+- separar professorat corrector de professorat administrador
+- restringir pantalles sensibles com `admin_settings.php` i `admin_stickers.php`
+
+`admin` manté el comportament funcional de `profe`:
+- pot veure grups
+- pot validar cromos
+- pot accedir al flux de professorat
+
+Però només `admin` pot accedir a pantalles d’administració.
+
+Migració:
+- `sql/2026_05_29_add_admin_role.sql`

@@ -54,10 +54,18 @@ function is_logged_in(): bool {
 
 /**
  * És professorat?
- * role = 'profe'
+ * role = 'profe' o 'admin'
  */
 function is_profe(): bool {
-    return is_logged_in() && $_SESSION['role'] === 'profe';
+    return is_logged_in() && in_array($_SESSION['role'], ['profe', 'admin'], true);
+}
+
+/**
+ * És admin?
+ * role = 'admin'
+ */
+function is_admin(): bool {
+    return is_logged_in() && $_SESSION['role'] === 'admin';
 }
 
 /**
@@ -84,6 +92,17 @@ function require_login(): void {
 function require_profe(): void {
     require_login();
     if (!is_profe()) {
+        http_response_code(403);
+        die('Accés denegat');
+    }
+}
+
+/**
+ * Requereix rol admin
+ */
+function require_admin(): void {
+    require_login();
+    if (!is_admin()) {
         http_response_code(403);
         die('Accés denegat');
     }

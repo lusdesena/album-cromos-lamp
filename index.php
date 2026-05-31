@@ -16,7 +16,7 @@ require_once __DIR__ . '/bootstrap.php';
    Si ja hi ha sessió activa
    ========================= */
 if (is_logged_in()) {
-    if (is_profe()) {
+    if (is_profe() || is_admin()) {
         header('Location: ' . BASE_URL . '/groups.php');
         exit;
     }
@@ -95,7 +95,7 @@ $_SESSION['name']     = (string)$user['name'];
 /* =========================
    Redirecció per rol
    ========================= */
-if ($_SESSION['role'] === 'profe') {
+if ($_SESSION['role'] === 'profe' || $_SESSION['role'] === 'admin') {
     header('Location: ' . BASE_URL . '/groups.php');
     exit;
 }

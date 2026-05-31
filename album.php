@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
 require_login();
+$is_reviewer = is_profe() || is_admin();
 
 /* =========================
    Determinar group_id (seguretat)
@@ -401,14 +402,14 @@ $stmt_stats->close();
    URLs pager + return
    ========================= */
 $params = $_GET;
-$qExtra = is_profe() ? ('&group_id=' . $group_id) : '';
+$qExtra = $is_reviewer ? ('&group_id=' . $group_id) : '';
 
 $params['page'] = $page - 1;
 $prevUrl = BASE_URL . '/album.php?' . http_build_query($params);
 $params['page'] = $page + 1;
 $nextUrl = BASE_URL . '/album.php?' . http_build_query($params);
 
-$return = BASE_URL . "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : "");
+$return = BASE_URL . "/album.php?page={$page}" . ($is_reviewer ? "&group_id={$group_id}" : "");
 if (!$mode_tots) {
   $return .= '&bloc_id=' . $bloc['id'];
 }
@@ -435,7 +436,7 @@ if (!$mode_tots) {
                 <p class="album-sub">
                   Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong>
                   (rol: <?php echo htmlspecialchars((string)($_SESSION['role'] ?? '')); ?>)
-                  <?php if (is_profe()): ?>
+                  <?php if ($is_reviewer): ?>
                    — <a href="<?php echo BASE_URL; ?>/groups.php">Tornar a grups</a>
                   <?php endif; ?>
                 </p>
@@ -658,7 +659,7 @@ if (!$mode_tots) {
                     <?php endif; ?>
                   </div>
 
-		<?php elseif (is_profe()): ?>
+		<?php elseif ($is_reviewer): ?>
 		  <?php if ($u): ?>
             <form method="post" action="<?php echo BASE_URL; ?>/upload.php" style="margin-top:8px;">
 		      <input type="hidden" name="action" value="validate">

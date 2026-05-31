@@ -2,7 +2,11 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/bootstrap.php';
-require_profe(); // IMPORTANT: el teu rol "profe"
+require_login();
+if (!is_profe() && !is_admin()) {
+  http_response_code(403);
+  die('Accés denegat');
+}
 
 $result = $mysqli->query("SELECT id, name, username, active FROM groups WHERE role='group' ORDER BY id ASC");
 $groups = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
@@ -52,14 +56,16 @@ $progress_total = max(1, $stickers_total);
         <div class="row">
           <h2>Grups (lectura)</h2>
           <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <?php if (is_admin()): ?>
             <a class="badge" href="<?php echo BASE_URL; ?>/admin_settings.php">Configuració</a>
             <a class="badge" href="<?php echo BASE_URL; ?>/admin_stickers.php">Stickers</a>
+            <?php endif; ?>
             <a class="badge" href="<?php echo BASE_URL; ?>/logout.php">Sortir</a>
           </div>
         </div>
 
         <p class="meta">
-          Sessió: <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong> (rol: profe)
+          Sessió: <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong> (rol: <?php echo htmlspecialchars((string)($_SESSION['role'] ?? '')); ?>)
         </p>
 
         <table style="width:100%; border-collapse:collapse;">
