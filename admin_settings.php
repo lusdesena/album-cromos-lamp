@@ -81,7 +81,7 @@ $saved = (($_GET['saved'] ?? '') === '1');
         </div>
 
         <p class="meta">
-          Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong> (rol: profe)
+          Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong> (rol: admin)
         </p>
 
         <?php if ($saved): ?>

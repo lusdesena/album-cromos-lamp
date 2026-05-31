@@ -343,12 +343,24 @@ TODO futur, de prioritat baixa fins que `album.php` renderitzi plenament des de 
 Objectiu:
 facilitar la creació i manteniment d’usuaris, grups i grups-classe.
 
-Abast previst:
+Capacitat actual:
+
+* `admin_users.php` permet editar `name`, `username`, `role`, `active` i `class_id` a la taula `groups`.
+* permet crear usuaris nous amb `name`, `username`, `password`, `role` i, quan toca, `class_id`.
+* permet resetar contrasenyes directament des d’administració sense demanar la contrasenya antiga.
+* si el camp de nova contrasenya queda buit, es conserva el hash existent.
+
+El reset de contrasenya és una capacitat administrativa interna, adequada per a l’ús docent actual. No substitueix un futur canvi de contrasenya self-service.
+
+Els usuaris amb rol `group` han d’estar assignats a un `grupsclasse.class_id` vàlid. Si falta aquesta assignació, les consultes de blocs i calendari no troben el context de classe i l’alumnat no veu el contingut d’àlbum/blocs esperat.
+
+TODO futur:
 
 * alta i baixa de grups
-* gestió d’usuaris professorat
-* associació a `grupsclasse`
-* possible rol `admin` o ampliació controlada del rol `profe`
+* eliminació d’usuaris, amb política clara sobre dades associades
+* política formal de desactivació/baixa més enllà del flag `active`
+* millorar la UI d’associació a `grupsclasse` quan hi hagi més volum de grups
+* canvi de contrasenya self-service per als propis usuaris
 
 ## Roadmap Tècnic Posterior
 
