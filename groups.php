@@ -59,6 +59,7 @@ $progress_total = max(1, $stickers_total);
             <?php if (is_admin()): ?>
             <a class="badge" href="<?php echo BASE_URL; ?>/admin_settings.php">Configuració</a>
             <a class="badge" href="<?php echo BASE_URL; ?>/admin_stickers.php">Stickers</a>
+            <a class="badge" href="<?php echo BASE_URL; ?>/admin_blocks.php">Blocs</a>
             <?php endif; ?>
             <a class="badge" href="<?php echo BASE_URL; ?>/logout.php">Sortir</a>
           </div>

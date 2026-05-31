@@ -181,6 +181,24 @@ TODO futur, de prioritat baixa/mitjana perquè el sistema actual és estable i f
 * eliminar progressivament la dependència dels rangs `slot_inici` / `slot_final` a `blocs`.
 * derivar els blocs dinàmicament a partir de les relacions entre stickers i blocs.
 
+## Admin Pragmàtic de Blocs
+
+S’ha afegit `admin_blocks.php` com a pantalla mínima per configurar instàncies noves mentre el sistema de blocs continua basat en rangs de slots.
+
+Capacitat actual:
+
+* editar i crear files de `blocs`
+* editar i crear files de `grupsclasse`
+* editar i crear files de `bloc_calendari`
+* sense eliminació encara
+
+Aquesta pantalla és intencionadament temporal i pragmàtica. Permet mantenir operativa la configuració real de l’àlbum sense anticipar el redisseny complet de blocs.
+
+TODO futur:
+
+* redissenyar blocs perquè la relació sticker/bloc no estigui duplicada amb rangs de slots.
+* migrar la lògica de renderitzat cap a metadata declarativa de stickers i blocs.
+
 ## Textos Configurables
 
 S’ha introduït una primera capa de configuració persistent d’interfície:
