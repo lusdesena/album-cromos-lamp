@@ -4,90 +4,6 @@ declare(strict_types=1);
 require_once __DIR__ . '/bootstrap.php';
 require_login();
 
-/**
- * Placeholder del nom del cromo / tasca.
- * Omple aquest mapping amb les tasques.
- *
- * ASB: Variables TOTAL_SLOTS i REAL_SLOTS traslladades a helpers.php
- */
-function slot_title(int $slot): string {
-    $map = [
-        1  => '#P1.1 Taula de subxarxes',
-        2  => '#P1.2 Mapa de xarxa (versió 1)',
-        3  => '#P1.3 show ip interface brief R1',
-        4  => '#P1.4 show ip interface brief R2',
-        5  => '#P1.5 show ip interface brief R3',
-        6  => '#P1.6 show ip interface brief R4',
-        7  => '#P1.7 (Extra) — Configuració d\'un d\'DHCP',
-        8  => '#P1.8 — Configuració del gateway',
-        9  => '#P1.9 — /etc/network/interfaces, show ip o similar d\'un PC d\'IT',
-        10 => '#P1.10 — /etc/network/interfaces, show ip o similar d\'un PC de RRHH',
-        11 => '#P1.11 — /etc/network/interfaces, show ip o similar d\'un PC de finances',
-        12 => '#P1.12 — /etc/network/interfaces, show ip o similar d\'un PC de comercial',
-        13 => '#P1.13 — /etc/network/interfaces d\'un servidor d\'IT',
-        14 => '#P1.14 — /etc/network/interfaces d\'un servidor de RRHH',
-        15 => '#P1.15 — /etc/network/interfaces d\'un servidor de finances',
-        16 => '#P1.16 — /etc/network/interfaces d\'un servidor de comercial',
-        17 => '#P1.17 — /etc/network/interfaces d\'alguna impressora',
-        18 => '#P1.18 — PingPC -> Servidor (IT)',
-        19 => '#P1.19 — PingPC -> Servidor (RRHH)',
-        20 => '#P1.20 — PingPC -> Servidor (Finances)',
-        21 => '#P1.21 — PingPC -> Servidor (Comercial)',
-        22 => '#P1.22 — Impressora responent (IPImpressora:631 des del navegador)',
-        23 => '#P1.23 — Ping google (1 PC d\'IT)',
-        24 => '#P1.24 — Ping google (1 PC de RRHH)',
-        25 => '#P1.25 — Ping google (1 PC de finances)',
-        26 => '#P1.26 — Ping google (1 PC de comercial)',
-        27 => '#P1.27 — IPs configuració ETH1/ETH2 R1',
-        28 => '#P1.28 — IPs configuració ETH1/ETH2 R2',
-        29 => '#P1.29 — IPs configuració ETH1/ETH2 R3',
-        30 => '#P1.30 — IPs configuració ETH1/ETH2 R4',
-        31 => '#P1.31 — Configuració IP PC real (IT) (IP, màscara, DNS, Gateway)',
-        32 => '#P1.32 — Configuració IP PC real (RRHH) (IP, màscara, DNS, Gateway)',
-        33 => '#P1.33 — Configuració IP PC real (finances) (IP, màscara, DNS, Gateway)',
-        34 => '#P1.34 — Configuració IP PC real (comercial) (IP, màscara, DNS, Gateway)',
-        35 => '#P1.35 — Ping PC real -> Servidor (IT)',
-        36 => '#P1.36 — Ping PC real -> Servidor (RRHH)',
-        37 => '#P1.37 — Ping PC real -> Servidor (finances)',
-        38 => '#P1.38 — Ping PC real -> Servidor (comercial)',
-        39 => '#P1.39 — Impressora RRHH accessible (http://IP_impressora:631)',
-        40 => '#P1.40 — Impressora finances accessible (http://IP_impressora:631)',
-        41 => '#P1.41 — Impressora comercial accessible (http://IP_impressora:631)',
-        42 => '#P1.42 — Ping a internet des d\'un PC real (IT)',
-        43 => '#P1.43 — Ping a internet des d\'un PC real (RRHH)',
-        44 => '#P1.44 — Ping a internet des d\'un PC real (finances)',
-        45 => '#P1.45 — Ping a internet des d\'un PC real (comercial)',
-        46 => '#P1.46 — Mapa de xarxa complet (ha de ser una única captura del mapa complet en GNS3, reflectint si s\'escau els canvis fets des de la 1a entrega',
-        47 => '#P1.47 — Taula d\'incidències detectades i resoltes',
-        48 => '#P2.1 — Taula de VLANS',
-        49 => '#P2.2 — Mapa de xarxa (GNS3)',
-        50 => '#P2.3 — Taula de ports dels switchos',
-        51 => '#P2.4 — Configuració SCR1, SSR1',
-        52 => '#P2.5 — Configuració SCR2, SSR2',
-        53 => '#P2.6 — Configuració SCR3, SSR3',
-        54 => '#P2.7 — Configuració SCR4, SSR4',
-        55 => '#P2.8 — Sub interfícies del router',
-        56 => '#P2.9 — Connectivitat inter-VLAN bàsica',
-        57 => '#P2.10 — Configuració DHCP per a cada VLAN (Extra)',
-        58 => '#P2.11 — Bloqueig interdepartamental (Accept/Deny plantilla R0)',
-        59 => '#P2.12 — Ping o accés correcte al servidor de nòmines des d\'un altre departament',
-        60 => '#P2.13 — Ping fallit o accés denegat a un servidor d\'un altre departament',
-        61 => '#P2.14 — IP del servidor dins la DMZ',
-        62 => '#P2.15 — Redirecció de ports cap al WebServer',
-        63 => '#P2.16 — Accés extern al WebServer',
-        64 => '#P2.17 — Doble redirecció de ports (Firewall -> Router)',
-        65 => '#P2.18 — Doble redirecció de ports (Router -> PC intern',
-        66 => '#P2.19 — Connexió remota correcta SSHServer1',
-        67 => '#P2.20 — Connexió remota correcta SSHServer2',
-        68 => '#P2.21 — Taula IPs de gestió switchos VLAN99 (Extra)',
-        69 => '#P2.22 — Accés permès del PC Admin IT a la VLAN de gestió (Extra)',
-        70 => '#P2.23 — Accés bloquejat des d\'un altre PC (Extra)',
-        71 => '#P2.24 — Accés bloquejat des de la xarxa partner',
-
-    ];
-    return $map[$slot] ?? "Tasca {$slot} — Properament";
-}
-
 /* =========================
    Determinar group_id (seguretat)
    - group: només el seu
@@ -722,7 +638,7 @@ if (!$mode_tots) {
 
               <div class="sticker-foot">
                 <!-- Nom del cromo / tasca -->
-                <span class="meta"><strong><?php echo htmlspecialchars($stickers[$slot]['title'] ?? slot_title($slot)); ?></strong></span>
+                <span class="meta"><strong><?php echo htmlspecialchars($stickers[$slot]['title'] ?? "Cromo #{$slot}"); ?></strong></span>
 
                 <?php if (is_group() && $bloc_editable): ?>
                   <?php
