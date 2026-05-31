@@ -33,6 +33,9 @@ function group_stats(int $gid, array $stats_by_group): array {
     'rebutjat'          => $s['rebutjat'] ?? 0,
   ];
 }
+
+$stickers_total = get_visible_enabled_stickers_count($mysqli);
+$progress_total = max(1, $stickers_total);
 ?>
 <!doctype html>
 <html lang="ca">
@@ -97,12 +100,13 @@ function group_stats(int $gid, array $stats_by_group): array {
 		
                 <td style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">
                 <?php
-                $p_ok   = (int)round(100 * $st['validat'] / REAL_SLOTS);
-                $p_wait = (int)round(100 * $st['pendent_validacio'] / REAL_SLOTS);
-                $p_bad  = (int)round(100 * $st['rebutjat'] / REAL_SLOTS);
+                $p_ok   = (int)round(100 * $st['validat'] / $progress_total);
+                $p_wait = (int)round(100 * $st['pendent_validacio'] / $progress_total);
+                $p_bad  = (int)round(100 * $st['rebutjat'] / $progress_total);
 
                 $done = $st['validat'] + $st['pendent_validacio'] + $st['rebutjat'];
-                $p_none = (int)round(100 * (REAL_SLOTS - $done) / REAL_SLOTS);
+                $not_done = max(0, $stickers_total - $done);
+                $p_none = (int)round(100 * $not_done / $progress_total);
 
                 /* Ajust fi per sumar 100 */
                 $sum = $p_ok + $p_wait + $p_bad + $p_none;
@@ -122,7 +126,7 @@ function group_stats(int $gid, array $stats_by_group): array {
                     <?php echo $st['validat']; ?>✔
                     <?php echo $st['pendent_validacio']; ?>⏳
                     <?php echo $st['rebutjat']; ?>✖
-                    <?php echo REAL_SLOTS - $done; ?>○
+                    <?php echo $not_done; ?>○
                   </small>
                 </td>
 

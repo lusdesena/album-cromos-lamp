@@ -56,6 +56,47 @@ function get_sticker(mysqli $mysqli, int $slot): ?array
     return $stickers[$slot] ?? null;
 }
 
+function get_visible_enabled_stickers_count(mysqli $mysqli): int
+{
+    try {
+        $res = $mysqli->query("SELECT COUNT(*) AS c FROM stickers WHERE enabled = 1 AND visible = 1");
+    } catch (Throwable $e) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    if (!$res) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    $row = $res->fetch_assoc();
+    $res->free();
+
+    return $row ? (int)$row['c'] : 0;
+}
+
+function get_max_visible_enabled_sticker_slot(mysqli $mysqli): int
+{
+    try {
+        $res = $mysqli->query("SELECT MAX(slot) AS max_slot FROM stickers WHERE enabled = 1 AND visible = 1");
+    } catch (Throwable $e) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    if (!$res) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    $row = $res->fetch_assoc();
+    $res->free();
+    $max_slot = $row ? (int)$row['max_slot'] : 0;
+
+    if ($max_slot <= 0 && defined('REAL_SLOTS')) {
+        return REAL_SLOTS;
+    }
+
+    return $max_slot;
+}
+
 function bloc_editable_per_slot(mysqli $mysqli, int $group_id, int $slot): bool
 {
     $stmt = $mysqli->prepare(

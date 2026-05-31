@@ -44,6 +44,8 @@ if (!$g) {
 }
 $group_name = (string)$g['name'];
 $stickers = get_stickers_map($mysqli);
+$stickers_total = get_visible_enabled_stickers_count($mysqli);
+$max_sticker_slot = get_max_visible_enabled_sticker_slot($mysqli);
 
 /* =========================
    Blocs visibles del grup (per progrés global)
@@ -96,7 +98,7 @@ if (!$bloc) {
     "id" => 0,
     "nom" => "global",
     "slot_inici" => 1,
-    "slot_final" => REAL_SLOTS,
+    "slot_final" => $max_sticker_slot,
     "visible" => 1,
     "editable" => 1
   ];
@@ -313,15 +315,11 @@ $p_g_no = 100*$global_no/$global_total;
 /* =========================
    Paginació per SLOTS DEL BLOC
    ========================= */
-//$total_pages = (int)ceil(TOTAL_SLOTS / SLOTS_PER_PAGE);
 $total_pages = (int)ceil($total_slots_bloc / SLOTS_PER_PAGE);
 
 $page = (int)($_GET['page'] ?? 1);
 if ($page < 1) $page = 1;
 if ($page > $total_pages) $page = $total_pages;
-
-//$first_slot = (($page - 1) * SLOTS_PER_PAGE) + 1;
-//$last_slot  = min(TOTAL_SLOTS, $first_slot + SLOTS_PER_PAGE - 1);
 
 $first_slot = $slot_inici + (($page - 1) * SLOTS_PER_PAGE);
 $last_slot  = min($slot_final, $first_slot + SLOTS_PER_PAGE - 1);
@@ -382,16 +380,7 @@ if ($res) {
   }
 }
 
-/*for ($s = 1; $s <= REAL_SLOTS; $s++) {
-  if (!isset($by_slot[$s])) {
-    $stats['pendent']++;
-  } else {
-    $st = $by_slot[$s]['status'] ?? 'pendent';
-    $stats[$st] = ($stats[$st] ?? 0) + 1;
-  }
-}*/
-
-$total = REAL_SLOTS;
+$total = $stickers_total;
 $delivered = $stats['validat'] + $stats['pendent_validacio'] + $stats['rebutjat'];
 $stats['pendent'] = max(0, $total - $delivered);
 
