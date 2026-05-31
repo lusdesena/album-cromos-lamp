@@ -9,62 +9,132 @@ $error = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_verify($_POST['csrf_token'] ?? '');
 
-    $titles = $_POST['title'] ?? [];
-    $bloc_ids = $_POST['bloc_id'] ?? [];
+    $action = (string)($_POST['action'] ?? 'save');
 
-    if (!is_array($titles) || !is_array($bloc_ids)) {
-        http_response_code(400);
-        die('Dades invàlides');
-    }
+    if ($action === 'add') {
+        $slot = (int)($_POST['slot'] ?? 0);
+        $title = trim((string)($_POST['title'] ?? ''));
 
-    $stmt = $mysqli->prepare(
-        "UPDATE stickers
-         SET title = ?,
-             bloc_id = NULLIF(?, 0)
-         WHERE slot = ?"
-    );
-
-    if (!$stmt) {
-        http_response_code(500);
-        die('Error intern (prepare stickers update)');
-    }
-
-    foreach ($titles as $slot_key => $title_value) {
-        $slot = (int)$slot_key;
         if ($slot <= 0) {
-            continue;
+            $error = 'El slot ha de ser un enter positiu.';
+        } elseif ($title === '') {
+            $error = 'El títol no pot estar buit.';
+        } else {
+            $stmt_check = $mysqli->prepare("SELECT slot FROM stickers WHERE slot = ? LIMIT 1");
+            if (!$stmt_check) {
+                http_response_code(500);
+                die('Error intern (prepare sticker check)');
+            }
+
+            $stmt_check->bind_param('i', $slot);
+            $stmt_check->execute();
+            $res_check = $stmt_check->get_result();
+            $exists = $res_check && $res_check->fetch_assoc();
+            $stmt_check->close();
+
+            if ($exists) {
+                $error = 'Ja existeix un sticker amb aquest slot.';
+            } else {
+                $stmt_insert = $mysqli->prepare(
+                    "INSERT INTO stickers (slot, title, sort_order)
+                     VALUES (?, ?, ?)"
+                );
+
+                if (!$stmt_insert) {
+                    http_response_code(500);
+                    die('Error intern (prepare sticker insert)');
+                }
+
+                $sort_order = $slot;
+                $stmt_insert->bind_param('isi', $slot, $title, $sort_order);
+                $stmt_insert->execute();
+                $stmt_insert->close();
+
+                header('Location: ' . BASE_URL . '/admin_stickers.php?saved=1');
+                exit;
+            }
+        }
+    } elseif ($action === 'delete') {
+        $slot = (int)($_POST['slot'] ?? 0);
+
+        if ($slot <= 0) {
+            $error = 'Slot invàlid.';
+        } else {
+            $stmt_uploads = $mysqli->prepare("SELECT COUNT(*) AS c FROM uploads WHERE slot = ?");
+            if (!$stmt_uploads) {
+                http_response_code(500);
+                die('Error intern (prepare uploads check)');
+            }
+
+            $stmt_uploads->bind_param('i', $slot);
+            $stmt_uploads->execute();
+            $res_uploads = $stmt_uploads->get_result();
+            $row_uploads = $res_uploads ? $res_uploads->fetch_assoc() : null;
+            $upload_count = $row_uploads ? (int)$row_uploads['c'] : 0;
+            $stmt_uploads->close();
+
+            if ($upload_count > 0) {
+                $error = "No es pot eliminar el sticker #{$slot} perquè té entregues associades.";
+            } else {
+                $stmt_delete = $mysqli->prepare("DELETE FROM stickers WHERE slot = ?");
+                if (!$stmt_delete) {
+                    http_response_code(500);
+                    die('Error intern (prepare sticker delete)');
+                }
+
+                $stmt_delete->bind_param('i', $slot);
+                $stmt_delete->execute();
+                $stmt_delete->close();
+
+                header('Location: ' . BASE_URL . '/admin_stickers.php?saved=1');
+                exit;
+            }
+        }
+    } else {
+        $titles = $_POST['title'] ?? [];
+
+        if (!is_array($titles)) {
+            http_response_code(400);
+            die('Dades invàlides');
         }
 
-        $title = trim((string)$title_value);
-        $bloc_id = isset($bloc_ids[$slot_key]) ? (int)$bloc_ids[$slot_key] : 0;
-
-        $stmt->bind_param(
-            'sii',
-            $title,
-            $bloc_id,
-            $slot
+        $stmt = $mysqli->prepare(
+            "UPDATE stickers
+             SET title = ?
+             WHERE slot = ?"
         );
-        $stmt->execute();
+
+        if (!$stmt) {
+            http_response_code(500);
+            die('Error intern (prepare stickers update)');
+        }
+
+        foreach ($titles as $slot_key => $title_value) {
+            $slot = (int)$slot_key;
+            if ($slot <= 0) {
+                continue;
+            }
+
+            $title = trim((string)$title_value);
+
+            $stmt->bind_param(
+                'si',
+                $title,
+                $slot
+            );
+            $stmt->execute();
+        }
+
+        $stmt->close();
+
+        header('Location: ' . BASE_URL . '/admin_stickers.php?saved=1');
+        exit;
     }
-
-    $stmt->close();
-
-    header('Location: ' . BASE_URL . '/admin_stickers.php?saved=1');
-    exit;
-}
-
-$blocs = [];
-$stmt_blocs = $mysqli->prepare("SELECT id, nom FROM blocs ORDER BY ordre ASC, id ASC");
-if ($stmt_blocs) {
-    $stmt_blocs->execute();
-    $res_blocs = $stmt_blocs->get_result();
-    $blocs = $res_blocs ? $res_blocs->fetch_all(MYSQLI_ASSOC) : [];
-    $stmt_blocs->close();
 }
 
 $stickers = [];
 $stmt_stickers = $mysqli->prepare(
-    "SELECT slot, title, bloc_id
+    "SELECT slot, title
      FROM stickers
      ORDER BY sort_order ASC, slot ASC"
 );
@@ -101,7 +171,7 @@ $saved = (($_GET['saved'] ?? '') === '1');
         </div>
 
         <p class="meta">
-          Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong> (rol: profe)
+          Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong> (rol: admin)
         </p>
 
         <?php if ($saved): ?>
@@ -112,17 +182,37 @@ $saved = (($_GET['saved'] ?? '') === '1');
           <div class="error"><?php echo htmlspecialchars($error, ENT_QUOTES, 'UTF-8'); ?></div>
         <?php endif; ?>
 
+        <form class="form" method="post" action="<?php echo BASE_URL; ?>/admin_stickers.php" style="margin:14px 0 20px;">
+          <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+          <input type="hidden" name="action" value="add">
+
+          <div style="display:grid; grid-template-columns:120px minmax(220px, 1fr) auto; gap:10px; align-items:end;">
+            <div>
+              <label for="new-slot">Slot</label>
+              <input class="input" id="new-slot" name="slot" type="number" min="1" required>
+            </div>
+
+            <div>
+              <label for="new-title">Títol</label>
+              <input class="input" id="new-title" name="title" type="text" required>
+            </div>
+
+            <button class="btn" type="submit">Afegir sticker</button>
+          </div>
+        </form>
+
         <?php if ($stickers): ?>
           <form class="form" method="post" action="<?php echo BASE_URL; ?>/admin_stickers.php">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8'); ?>">
+            <input type="hidden" name="action" value="save">
 
             <div style="overflow-x:auto;">
-              <table style="width:100%; border-collapse:collapse; min-width:720px;">
+              <table style="width:100%; border-collapse:collapse; min-width:560px;">
                 <thead>
                   <tr>
                     <th style="text-align:left; padding:10px; border-bottom:1px solid var(--border);">Slot</th>
                     <th style="text-align:left; padding:10px; border-bottom:1px solid var(--border);">Títol</th>
-                    <th style="text-align:left; padding:10px; border-bottom:1px solid var(--border);">Bloc</th>
+                    <th style="text-align:left; padding:10px; border-bottom:1px solid var(--border);">Accions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -130,7 +220,6 @@ $saved = (($_GET['saved'] ?? '') === '1');
                   <?php
                     $slot = (int)$sticker['slot'];
                     $title = (string)$sticker['title'];
-                    $bloc_id = $sticker['bloc_id'] !== null ? (int)$sticker['bloc_id'] : 0;
                   ?>
                   <tr>
                     <td style="vertical-align:top; padding:10px; border-bottom:1px solid var(--border);">
@@ -140,18 +229,7 @@ $saved = (($_GET['saved'] ?? '') === '1');
                       <textarea class="input" name="title[<?php echo $slot; ?>]" rows="3"><?php echo htmlspecialchars($title, ENT_QUOTES, 'UTF-8'); ?></textarea>
                     </td>
                     <td style="vertical-align:top; padding:10px; border-bottom:1px solid var(--border);">
-                      <select class="input" name="bloc_id[<?php echo $slot; ?>]">
-                        <option value="0">Sense bloc</option>
-                        <?php foreach ($blocs as $bloc): ?>
-                          <?php
-                            $id = (int)$bloc['id'];
-                            $selected = ($id === $bloc_id) ? ' selected' : '';
-                          ?>
-                          <option value="<?php echo $id; ?>"<?php echo $selected; ?>>
-                            <?php echo htmlspecialchars((string)$bloc['nom'], ENT_QUOTES, 'UTF-8'); ?>
-                          </option>
-                        <?php endforeach; ?>
-                      </select>
+                      <button class="btn-secondary" type="submit" name="slot" value="<?php echo $slot; ?>" onclick="if (!confirm('Vols eliminar el sticker #<?php echo $slot; ?>?')) return false; this.form.elements['action'].value='delete'; return true;">Eliminar</button>
                     </td>
                   </tr>
                 <?php endforeach; ?>

@@ -167,6 +167,20 @@ Validació realitzada:
 * modificació live d’un títol via SQL
 * persistència del comportament existent
 
+## Limitació Actual dels Blocs
+
+El renderitzat actual de blocs encara depèn de `blocs.slot_inici` i `blocs.slot_final`.
+
+`stickers.bloc_id` existeix com a metadata prevista, però ara mateix és redundant i incomplet: no governa de manera plena ni l’ordre ni la composició visual dels blocs a `album.php`.
+
+Per evitar una administració enganyosa, l’edició de `bloc_id` s’ha retirat expressament de `admin_stickers.php`.
+
+TODO futur, de prioritat baixa/mitjana perquè el sistema actual és estable i funcional:
+
+* migrar el renderitzat d’àlbum i blocs perquè derivi completament de la metadata de `stickers`.
+* eliminar progressivament la dependència dels rangs `slot_inici` / `slot_final` a `blocs`.
+* derivar els blocs dinàmicament a partir de les relacions entre stickers i blocs.
+
 ## Textos Configurables
 
 S’ha introduït una primera capa de configuració persistent d’interfície:
@@ -291,13 +305,17 @@ Abast previst:
 Objectiu:
 gestionar stickers des de la pròpia aplicació.
 
-Abast previst:
+Capacitat actual:
 
 * editar títols
-* editar associació amb blocs
+* crear stickers nous indicant `slot` i `title`
+* eliminar stickers només si no tenen cap entrega associada a `uploads`
 
 TODO futur, de prioritat baixa fins que `album.php` renderitzi plenament des de `stickers`:
 
+* definir el comportament futur per eliminar stickers que ja tenen uploads associats.
+* afegir paginació i filtres a `admin_stickers.php`.
+* exposar `bloc_id` quan els blocs siguin derivats realment de la metadata de stickers.
 * `description`: reservat per a futurs tooltips o pantalles de detall.
 * `visible`, `enabled` i `required`: necessiten una semàntica més clara de renderitzat de l’àlbum abans d’exposar-los.
 * `sort_order`: està persistit, però l’ordre visual de l’àlbum encara no es basa completament en aquest camp.
