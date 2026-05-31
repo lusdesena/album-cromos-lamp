@@ -362,13 +362,28 @@ TODO futur:
 * millorar la UI d’associació a `grupsclasse` quan hi hagi més volum de grups
 * canvi de contrasenya self-service per als propis usuaris
 
+### Fase 5 Inicialització d'Instàncies
+
+Objectiu:
+permetre crear una instància nova des de zero sense dependre d'un dump real de producció.
+
+Capacitat iniciada:
+
+* `sql/init_schema.sql` defineix l'esquema net actual requerit per l'aplicació.
+* `sql/init_seed_basic.sql` aporta dades mínimes i genèriques: textos, blocs demo, grup-classe demo, calendari demo, stickers demo i un usuari admin amb hash bcrypt de marcador de posició.
+* `sql/schema_current.sql` continua sent només un snapshot històric de la BD real restaurada.
+
+Notes:
+
+* el seed no inclou uploads ni dades reals d'alumnat/professorat.
+* el hash de l'admin inicial s'ha de substituir abans d'usar una instància real.
+* el README s'actualitzarà després de validar aquests fitxers contra una BD buida.
+
 ## Roadmap Tècnic Posterior
 
 Tasques pendents de fons:
 
-* crear `init_schema.sql` net
-* separar schema i seed
-* definir dades demo mínimes
+* validar `init_schema.sql` i `init_seed_basic.sql` en una instància buida
 * reduir lògica concentrada a `album.php`
 * documentar desplegament multiinstància
 * revisar redirects i URLs relatives
