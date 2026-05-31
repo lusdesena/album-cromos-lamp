@@ -127,6 +127,7 @@ if (!$g) {
     die('Grup no trobat');
 }
 $group_name = (string)$g['name'];
+$stickers = get_stickers_map($mysqli);
 
 /* =========================
    Blocs visibles del grup (per progrés global)
@@ -721,7 +722,7 @@ if (!$mode_tots) {
 
               <div class="sticker-foot">
                 <!-- Nom del cromo / tasca -->
-                <span class="meta"><strong><?php echo htmlspecialchars(slot_title($slot)); ?></strong></span>
+                <span class="meta"><strong><?php echo htmlspecialchars($stickers[$slot]['title'] ?? slot_title($slot)); ?></strong></span>
 
                 <?php if (is_group() && $bloc_editable): ?>
                   <?php

@@ -12,6 +12,50 @@ const REAL_SLOTS     = 71; // <-- per no comptar els slots "dummy"
 *    HELPER FUNCTIONS
 *  ========================= */
 
+function get_stickers_map(mysqli $mysqli): array
+{
+    $sql = "SELECT slot, title, description, bloc_id, visible, enabled, required, sort_order
+            FROM stickers
+            WHERE enabled = 1
+            ORDER BY sort_order ASC, slot ASC";
+
+    try {
+        $res = $mysqli->query($sql);
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    if (!$res) {
+        return [];
+    }
+
+    $stickers = [];
+    while ($row = $res->fetch_assoc()) {
+        $slot = (int)$row['slot'];
+        $row['slot'] = $slot;
+        $row['bloc_id'] = $row['bloc_id'] !== null ? (int)$row['bloc_id'] : null;
+        $row['visible'] = (int)$row['visible'];
+        $row['enabled'] = (int)$row['enabled'];
+        $row['required'] = (int)$row['required'];
+        $row['sort_order'] = (int)$row['sort_order'];
+        $stickers[$slot] = $row;
+    }
+    $res->free();
+
+    return $stickers;
+}
+
+function get_sticker(mysqli $mysqli, int $slot): ?array
+{
+    static $stickers = null;
+
+    if ($stickers === null) {
+        $stickers = get_stickers_map($mysqli);
+    }
+
+    return $stickers[$slot] ?? null;
+}
+
 function bloc_editable_per_slot(mysqli $mysqli, int $group_id, int $slot): bool
 {
     $stmt = $mysqli->prepare(
@@ -56,4 +100,3 @@ function bloc_editable_per_slot(mysqli $mysqli, int $group_id, int $slot): bool
 
     return true;
 }
-

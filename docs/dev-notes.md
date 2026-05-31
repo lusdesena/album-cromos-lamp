@@ -176,3 +176,115 @@ Però necessita:
 
 ChatGPT s’està fent servir com a capa d’arquitectura, memòria i direcció tècnica.
 
+## Estat actual BD / stickers
+
+S’ha introduït la primera migració orientada a desacoblar els cromos del codi PHP:
+
+* `sql/2026_05_29_create_stickers.sql`
+
+La migració:
+
+* crea la nova taula `stickers`
+* introdueix metadata configurable per sticker
+* afegeix FK cap a `blocs`
+* pobla la taula amb els títols actuals
+
+La migració és:
+
+* incremental
+* reversible
+* segura de reaplicar (`INSERT IGNORE`)
+
+### Taula stickers
+
+Columnes actuals:
+
+* `id`
+* `slot`
+* `title`
+* `description`
+* `bloc_id`
+* `visible`
+* `enabled`
+* `required`
+* `sort_order`
+* timestamps
+
+Objectiu:
+convertir `stickers` en la futura font de veritat de:
+
+* títols
+* ordre
+* visibilitat
+* configuració
+* agrupació per blocs
+
+## Recuperació de stickers perduts
+
+Durant la migració s’ha detectat que part dels stickers històrics havien desaparegut del codi PHP, probablement degut a sincronitzacions Git fetes durant l’etapa inicial del projecte (“a salto de mata”).
+
+Tanmateix:
+
+* encara existien entregues associades a aquests slots
+* les dades es conservaven a la BD i uploads
+
+S’han restaurat manualment els stickers globals:
+
+* slots 72–87
+* associats a `bloc_id = 4`
+
+Això reforça la necessitat de:
+
+* eliminar metadata hardcoded del codi
+* utilitzar la BD com a font persistent de configuració
+
+## Proper pas previst
+
+El següent refactor previst és:
+
+1. introduir helpers:
+
+   * `get_stickers_map()`
+   * `get_sticker($slot)`
+
+2. carregar metadata de stickers des de BD
+
+3. substituir gradualment:
+
+   * `slot_title()`
+     per:
+   * lectura dinàmica des de `stickers`
+
+Inicialment:
+
+* es mantindrà `slot_title()` com a fallback
+* es mantindran constants com `TOTAL_SLOTS`
+* el canvi ha de ser incremental i reversible
+
+## Objectiu funcional proper
+
+L’objectiu immediat és poder desplegar noves instàncies de l’aplicació sense modificar PHP manualment, configurant:
+
+* BD
+* usuaris
+* blocs
+* stickers
+
+directament des de dades persistides.
+
+## Notes arquitectòniques
+
+El descobriment dels stickers perduts ha confirmat un problema estructural important de l’etapa inicial del projecte:
+
+* dependència excessiva de dades hardcoded
+* absència de migracions/versionat de dades funcionals
+* divergència temporal entre producció i repositoris Git
+
+La nova direcció del projecte prioritza:
+
+* persistència declarativa
+* migracions SQL explícites
+* configuració via BD
+* refactors incrementals
+* compatibilitat amb múltiples instàncies
+
