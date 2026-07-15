@@ -16,12 +16,13 @@ body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   color: var(--ink);
-  background: rgba(199,22,15,.88);
-    /*radial-gradient(1200px 600px at 15% 15%, rgba(22,199,195,.18), transparent 60%),
-    radial-gradient(900px 500px at 85% 25%, rgba(12,142,145,.14), transparent 55%),*/
+  background: 
+  /* rgba(199,22,15,.88);*/
+    radial-gradient(1200px 600px at 15% 15%, rgba(22,199,195,.18), transparent 60%),
+    radial-gradient(900px 500px at 85% 25%, rgba(12,142,145,.14), transparent 55%),
     /*radial-gradient(1200px 600px at 15% 15%, rgba(199,22,195,.18), transparent 90%),
-    radial-gradient(900px 500px at 85% 25%, rgba(142,12,145,.14), transparent 90%),
-    var(--bg);*/
+    radial-gradient(900px 500px at 85% 25%, rgba(142,12,145,.14), transparent 90%),*/
+    var(--bg);
 }
 
 a{ color: var(--primary-dark); }

@@ -4,23 +4,23 @@ declare(strict_types=1);
 /*
  * index.php
  * Backend de login (controlador)
- * - Rep POST des de login.html
+ * - Rep POST des de login.php
  * - Valida usuari i contrasenya
  * - Crea sessió
  * - Redirigeix segons rol
  */
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 
 /* =========================
    Si ja hi ha sessió activa
    ========================= */
 if (is_logged_in()) {
-    if (is_profe()) {
-        header('Location: /groups.php');
+    if (is_profe() || is_admin()) {
+        header('Location: ' . BASE_URL . '/groups.php');
         exit;
     }
-    header('Location: /album.php');
+    header('Location: ' . BASE_URL . '/album.php');
     exit;
 }
 
@@ -28,7 +28,7 @@ if (is_logged_in()) {
    Només acceptem POST
    ========================= */
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /login.html');
+    header('Location: ' . BASE_URL . '/login.php');
     exit;
 }
 
@@ -95,10 +95,10 @@ $_SESSION['name']     = (string)$user['name'];
 /* =========================
    Redirecció per rol
    ========================= */
-if ($_SESSION['role'] === 'profe') {
-    header('Location: /groups.php');
+if ($_SESSION['role'] === 'profe' || $_SESSION['role'] === 'admin') {
+    header('Location: ' . BASE_URL . '/groups.php');
     exit;
 }
 
-header('Location: /album.php');
+header('Location: ' . BASE_URL . '/album.php');
 exit;

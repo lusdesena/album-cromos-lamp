@@ -1,0 +1,7 @@
+uploads/
+config.php
+*.swp
+*.swo
+.env
+.DS_Store
+sql/local/

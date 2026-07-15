@@ -1,11 +1,11 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 
 require_login();
 $is_group = is_group();
-$is_profe = is_profe();
+$is_profe = is_profe() || is_admin();
 
 $group_id = (int)$_SESSION['user_id'];
 
@@ -13,24 +13,24 @@ $group_id = (int)$_SESSION['user_id'];
    Paràmetres
    ========================= */
 $slot = (int)($_GET['slot'] ?? ($_POST['slot'] ?? 0));
-$return = (string)($_GET['return'] ?? ($_POST['return'] ?? '/album.php'));
+$return = (string)($_GET['return'] ?? ($_POST['return'] ?? (BASE_URL . '/album.php')));
 
 // El slot només és obligatori per a pujades d’alumnat
 if ($is_group && $slot <= 0) {
     http_response_code(400);
     die('Slot incorrecte');
 }
-if (!is_profe() && !bloc_editable_per_slot($mysqli, $group_id, $slot)) {
+if (!$is_profe && !bloc_editable_per_slot($mysqli, $group_id, $slot)) {
   http_response_code(403);
   die('Aquest bloc no admet modificacions en aquest moment.');
 }
 if ($return === '') {
-    $return = '/album.php';
+    $return = BASE_URL . '/album.php';
 }
 
 /* Normalitza "return" perquè no sigui un URL extern (seguretat bàsica) */
 if (str_starts_with($return, 'http://') || str_starts_with($return, 'https://')) {
-    $return = '/album.php';
+    $return = BASE_URL . '/album.php';
 }
 
 /* =========================
@@ -125,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_group) {
                 // Nom intern segur
                 $rand = bin2hex(random_bytes(8));
                 $safe_name = "g{$group_id}_s{$slot}_" . date('Ymd_His') . "_{$rand}.{$ext}";
-                $dest = __DIR__ . "/uploads/{$safe_name}";
+                $dest = UPLOADS_DIR . "/{$safe_name}";
 
                 // Obtenir filename antic (abans d’actualitzar)
                 $old_filename = get_old_filename($mysqli, $group_id, $slot);
@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $is_group) {
 
                             // Si hi havia un fitxer antic i és diferent, elimina’l del disc
                             if ($old_filename && $old_filename !== $safe_name) {
-                                $old_path = __DIR__ . "/uploads/" . $old_filename;
+                                $old_path = UPLOADS_DIR . '/' . $old_filename;
                                 if (is_file($old_path)) {
                                     @unlink($old_path);
                                 }

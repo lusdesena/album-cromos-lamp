@@ -1,8 +1,12 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/config.php';
-require_profe(); // IMPORTANT: el teu rol "profe"
+require_once __DIR__ . '/bootstrap.php';
+require_login();
+if (!is_profe() && !is_admin()) {
+  http_response_code(403);
+  die('Accés denegat');
+}
 
 $result = $mysqli->query("SELECT id, name, username, active FROM groups WHERE role='group' ORDER BY id ASC");
 $groups = $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
@@ -33,6 +37,9 @@ function group_stats(int $gid, array $stats_by_group): array {
     'rebutjat'          => $s['rebutjat'] ?? 0,
   ];
 }
+
+$stickers_total = get_visible_enabled_stickers_count($mysqli);
+$progress_total = max(1, $stickers_total);
 ?>
 <!doctype html>
 <html lang="ca">
@@ -40,7 +47,7 @@ function group_stats(int $gid, array $stats_by_group): array {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Professorat — Grups</title>
-  <link rel="stylesheet" href="assets/css/styles.css">
+  <link rel="stylesheet" href="<?php echo BASE_URL; ?>/assets/css/styles.css">
 </head>
 <body>
   <main class="page">
@@ -48,11 +55,19 @@ function group_stats(int $gid, array $stats_by_group): array {
       <section class="card">
         <div class="row">
           <h2>Grups (lectura)</h2>
-          <a class="badge" href="/logout.php">Sortir</a>
+          <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+            <?php if (is_admin()): ?>
+            <a class="badge" href="<?php echo BASE_URL; ?>/admin_settings.php">Configuració</a>
+            <a class="badge" href="<?php echo BASE_URL; ?>/admin_stickers.php">Stickers</a>
+            <a class="badge" href="<?php echo BASE_URL; ?>/admin_blocks.php">Blocs</a>
+            <a class="badge" href="<?php echo BASE_URL; ?>/admin_users.php">Usuaris</a>
+            <?php endif; ?>
+            <a class="badge" href="<?php echo BASE_URL; ?>/logout.php">Sortir</a>
+          </div>
         </div>
 
         <p class="meta">
-          Sessió: <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong> (rol: profe)
+          Sessió: <strong><?php echo htmlspecialchars($_SESSION['username']); ?></strong> (rol: <?php echo htmlspecialchars((string)($_SESSION['role'] ?? '')); ?>)
         </p>
 
         <table style="width:100%; border-collapse:collapse;">
@@ -90,19 +105,20 @@ function group_stats(int $gid, array $stats_by_group): array {
                   <?php echo ((int)$g['active'] === 1) ? 'Actiu' : 'Inactiu'; ?>
                 </td>
                 <td style="padding:10px; border-bottom:1px solid var(--border);">
-                  <a href="/album.php?group_id=<?php echo (int)$g['id']; ?>">Veure</a>
+                  <a href="<?php echo BASE_URL; ?>/album.php?group_id=<?php echo (int)$g['id']; ?>">Veure</a>
 		</td>
 
                 <?php $st = group_stats($gid, $stats_by_group); ?>
 		
                 <td style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">
                 <?php
-                $p_ok   = (int)round(100 * $st['validat'] / REAL_SLOTS);
-                $p_wait = (int)round(100 * $st['pendent_validacio'] / REAL_SLOTS);
-                $p_bad  = (int)round(100 * $st['rebutjat'] / REAL_SLOTS);
+                $p_ok   = (int)round(100 * $st['validat'] / $progress_total);
+                $p_wait = (int)round(100 * $st['pendent_validacio'] / $progress_total);
+                $p_bad  = (int)round(100 * $st['rebutjat'] / $progress_total);
 
                 $done = $st['validat'] + $st['pendent_validacio'] + $st['rebutjat'];
-                $p_none = (int)round(100 * (REAL_SLOTS - $done) / REAL_SLOTS);
+                $not_done = max(0, $stickers_total - $done);
+                $p_none = (int)round(100 * $not_done / $progress_total);
 
                 /* Ajust fi per sumar 100 */
                 $sum = $p_ok + $p_wait + $p_bad + $p_none;
@@ -122,14 +138,14 @@ function group_stats(int $gid, array $stats_by_group): array {
                     <?php echo $st['validat']; ?>✔
                     <?php echo $st['pendent_validacio']; ?>⏳
                     <?php echo $st['rebutjat']; ?>✖
-                    <?php echo REAL_SLOTS - $done; ?>○
+                    <?php echo $not_done; ?>○
                   </small>
                 </td>
 
                 <td style="text-align:center; padding:10px; border-bottom:1px solid var(--border);">
                 <?php if ($st['pendent_validacio'] > 0 && $first_slot !== null): ?>
-                  <a class="badge badge-corregir"
-                      href="/album.php?group_id=<?php echo $gid; ?>&page=<?php echo (int)ceil($first_slot / SLOTS_PER_PAGE); ?>">
+                    <a class="badge badge-corregir"
+                      href="<?php echo BASE_URL; ?>/album.php?group_id=<?php echo $gid; ?>&page=<?php echo (int)ceil($first_slot / SLOTS_PER_PAGE); ?>">
                       Corregir
                   </a>
                 <?php else: ?>

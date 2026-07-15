@@ -1,92 +1,9 @@
 <?php
 declare(strict_types=1);
 
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/bootstrap.php';
 require_login();
-
-/**
- * Placeholder del nom del cromo / tasca.
- * Omple aquest mapping amb les tasques.
- *
- * ASB: Variables TOTAL_SLOTS i REAL_SLOTS traslladades a helpers.php
- */
-function slot_title(int $slot): string {
-    $map = [
-        1  => '#P1.1 Taula de subxarxes',
-        2  => '#P1.2 Mapa de xarxa (versió 1)',
-        3  => '#P1.3 show ip interface brief R1',
-        4  => '#P1.4 show ip interface brief R2',
-        5  => '#P1.5 show ip interface brief R3',
-        6  => '#P1.6 show ip interface brief R4',
-        7  => '#P1.7 (Extra) — Configuració d\'un d\'DHCP',
-        8  => '#P1.8 — Configuració del gateway',
-        9  => '#P1.9 — /etc/network/interfaces, show ip o similar d\'un PC d\'IT',
-        10 => '#P1.10 — /etc/network/interfaces, show ip o similar d\'un PC de RRHH',
-        11 => '#P1.11 — /etc/network/interfaces, show ip o similar d\'un PC de finances',
-        12 => '#P1.12 — /etc/network/interfaces, show ip o similar d\'un PC de comercial',
-        13 => '#P1.13 — /etc/network/interfaces d\'un servidor d\'IT',
-        14 => '#P1.14 — /etc/network/interfaces d\'un servidor de RRHH',
-        15 => '#P1.15 — /etc/network/interfaces d\'un servidor de finances',
-        16 => '#P1.16 — /etc/network/interfaces d\'un servidor de comercial',
-        17 => '#P1.17 — /etc/network/interfaces d\'alguna impressora',
-        18 => '#P1.18 — PingPC -> Servidor (IT)',
-        19 => '#P1.19 — PingPC -> Servidor (RRHH)',
-        20 => '#P1.20 — PingPC -> Servidor (Finances)',
-        21 => '#P1.21 — PingPC -> Servidor (Comercial)',
-        22 => '#P1.22 — Impressora responent (IPImpressora:631 des del navegador)',
-        23 => '#P1.23 — Ping google (1 PC d\'IT)',
-        24 => '#P1.24 — Ping google (1 PC de RRHH)',
-        25 => '#P1.25 — Ping google (1 PC de finances)',
-        26 => '#P1.26 — Ping google (1 PC de comercial)',
-        27 => '#P1.27 — IPs configuració ETH1/ETH2 R1',
-        28 => '#P1.28 — IPs configuració ETH1/ETH2 R2',
-        29 => '#P1.29 — IPs configuració ETH1/ETH2 R3',
-        30 => '#P1.30 — IPs configuració ETH1/ETH2 R4',
-        31 => '#P1.31 — Configuració IP PC real (IT) (IP, màscara, DNS, Gateway)',
-        32 => '#P1.32 — Configuració IP PC real (RRHH) (IP, màscara, DNS, Gateway)',
-        33 => '#P1.33 — Configuració IP PC real (finances) (IP, màscara, DNS, Gateway)',
-        34 => '#P1.34 — Configuració IP PC real (comercial) (IP, màscara, DNS, Gateway)',
-        35 => '#P1.35 — Ping PC real -> Servidor (IT)',
-        36 => '#P1.36 — Ping PC real -> Servidor (RRHH)',
-        37 => '#P1.37 — Ping PC real -> Servidor (finances)',
-        38 => '#P1.38 — Ping PC real -> Servidor (comercial)',
-        39 => '#P1.39 — Impressora RRHH accessible (http://IP_impressora:631)',
-        40 => '#P1.40 — Impressora finances accessible (http://IP_impressora:631)',
-        41 => '#P1.41 — Impressora comercial accessible (http://IP_impressora:631)',
-        42 => '#P1.42 — Ping a internet des d\'un PC real (IT)',
-        43 => '#P1.43 — Ping a internet des d\'un PC real (RRHH)',
-        44 => '#P1.44 — Ping a internet des d\'un PC real (finances)',
-        45 => '#P1.45 — Ping a internet des d\'un PC real (comercial)',
-        46 => '#P1.46 — Mapa de xarxa complet (ha de ser una única captura del mapa complet en GNS3, reflectint si s\'escau els canvis fets des de la 1a entrega',
-        47 => '#P1.47 — Taula d\'incidències detectades i resoltes',
-        48 => '#P2.1 — Taula de VLANS',
-        49 => '#P2.2 — Mapa de xarxa (GNS3)',
-        50 => '#P2.3 — Taula de ports dels switchos',
-        51 => '#P2.4 — Configuració SCR1, SSR1',
-        52 => '#P2.5 — Configuració SCR2, SSR2',
-        53 => '#P2.6 — Configuració SCR3, SSR3',
-        54 => '#P2.7 — Configuració SCR4, SSR4',
-        55 => '#P2.8 — Sub interfícies del router',
-        56 => '#P2.9 — Connectivitat inter-VLAN bàsica',
-        57 => '#P2.10 — Configuració DHCP per a cada VLAN (Extra)',
-        58 => '#P2.11 — Bloqueig interdepartamental (Accept/Deny plantilla R0)',
-        59 => '#P2.12 — Ping o accés correcte al servidor de nòmines des d\'un altre departament',
-        60 => '#P2.13 — Ping fallit o accés denegat a un servidor d\'un altre departament',
-        61 => '#P2.14 — IP del servidor dins la DMZ',
-        62 => '#P2.15 — Redirecció de ports cap al WebServer',
-        63 => '#P2.16 — Accés extern al WebServer',
-        64 => '#P2.17 — Doble redirecció de ports (Firewall -> Router)',
-        65 => '#P2.18 — Doble redirecció de ports (Router -> PC intern',
-        66 => '#P2.19 — Connexió remota correcta SSHServer1',
-        67 => '#P2.20 — Connexió remota correcta SSHServer2',
-        68 => '#P2.21 — Taula IPs de gestió switchos VLAN99 (Extra)',
-        69 => '#P2.22 — Accés permès del PC Admin IT a la VLAN de gestió (Extra)',
-        70 => '#P2.23 — Accés bloquejat des d\'un altre PC (Extra)',
-        71 => '#P2.24 — Accés bloquejat des de la xarxa partner',
-
-    ];
-    return $map[$slot] ?? "Tasca {$slot} — Properament";
-}
+$is_reviewer = is_profe() || is_admin();
 
 /* =========================
    Determinar group_id (seguretat)
@@ -99,12 +16,12 @@ if (is_group()) {
 } else {
     $group_id = (int)($_GET['group_id'] ?? 0);
     if ($group_id <= 0) {
-        header('Location: /groups.php');
+      header('Location: ' . BASE_URL . '/groups.php');
         exit;
     }
 }
 if ($group_id <= 0) {
-    header('Location: /login.html');
+    header('Location: ' . BASE_URL . '/login.php');
     exit;
 }
 
@@ -127,6 +44,12 @@ if (!$g) {
     die('Grup no trobat');
 }
 $group_name = (string)$g['name'];
+$stickers = get_stickers_map($mysqli);
+$stickers_total = get_visible_enabled_stickers_count($mysqli);
+$max_sticker_slot = get_max_visible_enabled_sticker_slot($mysqli);
+$app_settings = get_app_settings_map($mysqli);
+$album_title = $app_settings['album_brief'] ?? 'Àlbum de cromos';
+$institution_name = $app_settings['institution_name'] ?? 'Institut Mediterrània';
 
 /* =========================
    Blocs visibles del grup (per progrés global)
@@ -179,7 +102,7 @@ if (!$bloc) {
     "id" => 0,
     "nom" => "global",
     "slot_inici" => 1,
-    "slot_final" => REAL_SLOTS,
+    "slot_final" => $max_sticker_slot,
     "visible" => 1,
     "editable" => 1
   ];
@@ -396,15 +319,11 @@ $p_g_no = 100*$global_no/$global_total;
 /* =========================
    Paginació per SLOTS DEL BLOC
    ========================= */
-//$total_pages = (int)ceil(TOTAL_SLOTS / SLOTS_PER_PAGE);
 $total_pages = (int)ceil($total_slots_bloc / SLOTS_PER_PAGE);
 
 $page = (int)($_GET['page'] ?? 1);
 if ($page < 1) $page = 1;
 if ($page > $total_pages) $page = $total_pages;
-
-//$first_slot = (($page - 1) * SLOTS_PER_PAGE) + 1;
-//$last_slot  = min(TOTAL_SLOTS, $first_slot + SLOTS_PER_PAGE - 1);
 
 $first_slot = $slot_inici + (($page - 1) * SLOTS_PER_PAGE);
 $last_slot  = min($slot_final, $first_slot + SLOTS_PER_PAGE - 1);
@@ -465,16 +384,7 @@ if ($res) {
   }
 }
 
-/*for ($s = 1; $s <= REAL_SLOTS; $s++) {
-  if (!isset($by_slot[$s])) {
-    $stats['pendent']++;
-  } else {
-    $st = $by_slot[$s]['status'] ?? 'pendent';
-    $stats[$st] = ($stats[$st] ?? 0) + 1;
-  }
-}*/
-
-$total = REAL_SLOTS;
+$total = $stickers_total;
 $delivered = $stats['validat'] + $stats['pendent_validacio'] + $stats['rebutjat'];
 $stats['pendent'] = max(0, $total - $delivered);
 
@@ -492,14 +402,14 @@ $stmt_stats->close();
    URLs pager + return
    ========================= */
 $params = $_GET;
-$qExtra = is_profe() ? ('&group_id=' . $group_id) : '';
+$qExtra = $is_reviewer ? ('&group_id=' . $group_id) : '';
 
 $params['page'] = $page - 1;
-$prevUrl = '/album.php?' . http_build_query($params);
+$prevUrl = BASE_URL . '/album.php?' . http_build_query($params);
 $params['page'] = $page + 1;
-$nextUrl = '/album.php?' . http_build_query($params);
+$nextUrl = BASE_URL . '/album.php?' . http_build_query($params);
 
-$return = "/album.php?page={$page}" . (is_profe() ? "&group_id={$group_id}" : "");
+$return = BASE_URL . "/album.php?page={$page}" . ($is_reviewer ? "&group_id={$group_id}" : "");
 if (!$mode_tots) {
   $return .= '&bloc_id=' . $bloc['id'];
 }
@@ -509,7 +419,7 @@ if (!$mode_tots) {
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Àlbum — <?php echo htmlspecialchars($group_name); ?></title>
+  <title><?php echo htmlspecialchars($album_title); ?> — <?php echo htmlspecialchars($group_name); ?></title>
   <link rel="stylesheet" href="/assets/css/styles.css">
 </head>
 <body>
@@ -520,21 +430,21 @@ if (!$mode_tots) {
 	<div class="album-header">
 	  <div class="album-header-top">
             <div class="album-brand">
-              <img src="/assets/img/logoInstitut.png" alt="Institut">
+              <img src="<?php echo BASE_URL; ?>/assets/img/logoInstitut.png" alt="<?php echo htmlspecialchars($institution_name); ?>">
               <div>
-                <h1 class="album-title">Àlbum de cromos — <?php echo htmlspecialchars($group_name); ?></h1>
+                <h1 class="album-title"><?php echo htmlspecialchars($album_title); ?> — <?php echo htmlspecialchars($group_name); ?></h1>
                 <p class="album-sub">
                   Sessió: <strong><?php echo htmlspecialchars((string)($_SESSION['username'] ?? '')); ?></strong>
                   (rol: <?php echo htmlspecialchars((string)($_SESSION['role'] ?? '')); ?>)
-                  <?php if (is_profe()): ?>
-                   — <a href="/groups.php">Tornar a grups</a>
+                  <?php if ($is_reviewer): ?>
+                   — <a href="<?php echo BASE_URL; ?>/groups.php">Tornar a grups</a>
                   <?php endif; ?>
                 </p>
               </div>
             </div>
 
             <div class="album-actions">
-              <a class="badge" href="/logout.php">Sortir</a>
+              <a class="badge" href="<?php echo BASE_URL; ?>/logout.php">Sortir</a>
 	    </div>
 	  </div>
 
@@ -548,7 +458,7 @@ if (!$mode_tots) {
                 <?php foreach ($blocs_globals as $b): ?>
                 <?php
                     $active = ((int)$b['id'] === (int)$bloc['id']);
-                    $url = '/album.php?group_id=' . $group_id . '&bloc_id=' . (int)$b['id'];
+                    $url = BASE_URL . '/album.php?group_id=' . $group_id . '&bloc_id=' . (int)$b['id'];
                   ?>
                   <a href="<?php echo htmlspecialchars($url); ?>"
                      class="badge <?php echo $active ? 'badge-active' : 'badge-muted'; ?>">
@@ -556,9 +466,9 @@ if (!$mode_tots) {
                   </a>
 	        <?php endforeach; ?>
 
-                <?php
-		      $url_tots = '/album.php?group_id=' . $group_id;
-		    ?>
+                 <?php
+          	      $url_tots = BASE_URL . '/album.php?group_id=' . $group_id;
+         	    ?>
                   <a href="<?php echo htmlspecialchars($url_tots); ?>"
                      class="badge <?php echo $mode_tots ? 'badge-active' : 'badge-muted'; ?>">
                       Àlbum complet
@@ -686,9 +596,9 @@ if (!$mode_tots) {
                       $fn = (string)$u['filename'];
                       $is_img = (bool)preg_match('/\.(png|jpg|jpeg|webp)$/i', $fn);
                     ?>
-                    <a href="/uploads.php?id=<?php echo (int)$u['id']; ?>" class="sticker-image-link">
+                    <a href="<?php echo BASE_URL . '/uploads.php?id=' . (int)$u['id']; ?>" class="sticker-image-link">
                     <?php if ($is_img): ?>
-                      <img src="/uploads.php?id=<?php echo (int)$u['id']; ?>" alt="Cromo <?php echo (int)$slot; ?>">
+                      <img src="<?php echo BASE_URL . '/uploads.php?id=' . (int)$u['id']; ?>" alt="Cromo <?php echo (int)$slot; ?>">
                     <?php else: ?>
                       <div class="sticker-empty">
                         PDF PUJAT
@@ -721,11 +631,11 @@ if (!$mode_tots) {
 
               <div class="sticker-foot">
                 <!-- Nom del cromo / tasca -->
-                <span class="meta"><strong><?php echo htmlspecialchars(slot_title($slot)); ?></strong></span>
+                <span class="meta"><strong><?php echo htmlspecialchars($stickers[$slot]['title'] ?? "Cromo #{$slot}"); ?></strong></span>
 
                 <?php if (is_group() && $bloc_editable): ?>
                   <?php
-                    $uploadUrl = "/upload.php?slot={$slot}&return=" . urlencode($return);
+                    $uploadUrl = BASE_URL . "/upload.php?slot={$slot}&return=" . urlencode($return);
                   ?>
 
                   <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
@@ -736,7 +646,7 @@ if (!$mode_tots) {
 
                     <!-- Eliminar (només si el cromo està omplert) -->
                     <?php if ($u): ?>
-                      <form method="post" action="/delete.php" style="margin:0;">
+                      <form method="post" action="<?php echo BASE_URL; ?>/delete.php" style="margin:0;">
                         <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token()); ?>">
                         <input type="hidden" name="slot" value="<?php echo (int)$slot; ?>">
                         <input type="hidden" name="return" value="<?php echo htmlspecialchars($return); ?>">
@@ -749,9 +659,9 @@ if (!$mode_tots) {
                     <?php endif; ?>
                   </div>
 
-		<?php elseif (is_profe()): ?>
+		<?php elseif ($is_reviewer): ?>
 		  <?php if ($u): ?>
-		    <form method="post" action="/upload.php" style="margin-top:8px;">
+            <form method="post" action="<?php echo BASE_URL; ?>/upload.php" style="margin-top:8px;">
 		      <input type="hidden" name="action" value="validate">
 		      <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars(csrf_token()); ?>">
 		      <input type="hidden" name="upload_id" value="<?php echo (int)$u['id']; ?>">

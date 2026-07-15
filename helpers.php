@@ -12,6 +12,123 @@ const REAL_SLOTS     = 71; // <-- per no comptar els slots "dummy"
 *    HELPER FUNCTIONS
 *  ========================= */
 
+function get_stickers_map(mysqli $mysqli): array
+{
+    $sql = "SELECT slot, title, description, bloc_id, visible, enabled, required, sort_order
+            FROM stickers
+            WHERE enabled = 1
+            ORDER BY sort_order ASC, slot ASC";
+
+    try {
+        $res = $mysqli->query($sql);
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    if (!$res) {
+        return [];
+    }
+
+    $stickers = [];
+    while ($row = $res->fetch_assoc()) {
+        $slot = (int)$row['slot'];
+        $row['slot'] = $slot;
+        $row['bloc_id'] = $row['bloc_id'] !== null ? (int)$row['bloc_id'] : null;
+        $row['visible'] = (int)$row['visible'];
+        $row['enabled'] = (int)$row['enabled'];
+        $row['required'] = (int)$row['required'];
+        $row['sort_order'] = (int)$row['sort_order'];
+        $stickers[$slot] = $row;
+    }
+    $res->free();
+
+    return $stickers;
+}
+
+function get_sticker(mysqli $mysqli, int $slot): ?array
+{
+    static $stickers = null;
+
+    if ($stickers === null) {
+        $stickers = get_stickers_map($mysqli);
+    }
+
+    return $stickers[$slot] ?? null;
+}
+
+function get_visible_enabled_stickers_count(mysqli $mysqli): int
+{
+    try {
+        $res = $mysqli->query("SELECT COUNT(*) AS c FROM stickers WHERE enabled = 1 AND visible = 1");
+    } catch (Throwable $e) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    if (!$res) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    $row = $res->fetch_assoc();
+    $res->free();
+
+    return $row ? (int)$row['c'] : 0;
+}
+
+function get_max_visible_enabled_sticker_slot(mysqli $mysqli): int
+{
+    try {
+        $res = $mysqli->query("SELECT MAX(slot) AS max_slot FROM stickers WHERE enabled = 1 AND visible = 1");
+    } catch (Throwable $e) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    if (!$res) {
+        return defined('REAL_SLOTS') ? REAL_SLOTS : 0;
+    }
+
+    $row = $res->fetch_assoc();
+    $res->free();
+    $max_slot = $row ? (int)$row['max_slot'] : 0;
+
+    if ($max_slot <= 0 && defined('REAL_SLOTS')) {
+        return REAL_SLOTS;
+    }
+
+    return $max_slot;
+}
+
+function get_app_settings_map(mysqli $mysqli): array
+{
+    try {
+        $res = $mysqli->query("SELECT setting_key, setting_value FROM app_settings");
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    if (!$res) {
+        return [];
+    }
+
+    $settings = [];
+    while ($row = $res->fetch_assoc()) {
+        $settings[(string)$row['setting_key']] = (string)$row['setting_value'];
+    }
+    $res->free();
+
+    return $settings;
+}
+
+function get_app_setting(mysqli $mysqli, string $key, string $default = ''): string
+{
+    static $settings = null;
+
+    if ($settings === null) {
+        $settings = get_app_settings_map($mysqli);
+    }
+
+    return $settings[$key] ?? $default;
+}
+
 function bloc_editable_per_slot(mysqli $mysqli, int $group_id, int $slot): bool
 {
     $stmt = $mysqli->prepare(
@@ -56,4 +173,3 @@ function bloc_editable_per_slot(mysqli $mysqli, int $group_id, int $slot): bool
 
     return true;
 }
-
