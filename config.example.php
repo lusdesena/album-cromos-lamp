@@ -24,12 +24,12 @@ session_start();
 */
 
 /* =========================
-   Configuració BD
+   Configuració BD admet variables d'entorn
    ========================= */
-$db_host = 'localhost';
-$db_name = 'NOM_BD';
-$db_user = 'DB_USER';
-$db_pass = 'USER_PW';
+$db_host = getenv('DB_HOST') ?: 'localhost';
+$db_name = getenv('DB_NAME') ?: 'NOM_BD';
+$db_user = getenv('DB_USER') ?: 'DB_USER';
+$db_pass = getenv('DB_PASS') ?: 'USER_PW';
 
 $mysqli = new mysqli($db_host, $db_user, $db_pass, $db_name);
 
