@@ -23,9 +23,9 @@ function db_is_alive(string $host, string $user, string $pass, string $name, int
 
 $check = db_is_alive(
     getenv('DB_HOST') ?: 'localhost',
-    getenv('DB_USER') ?: 'DB_USER', 
-    getenv('DB_PASS') ?: 'USER_PW', 
+    getenv('DB_USER') ?: 'DB_USER',
+    getenv('DB_PASS') ?: 'USER_PW',
     getenv('DB_NAME') ?: 'NOM_BD');
-    
+
 http_response_code($check ? 200 : 503);
 echo $check ? 'ok' : 'unavailable';

@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_DATABASE: ${DB_NAME}
+      MARIADB_USER: ${DB_USER}
+      MARIADB_PASSWORD: ${DB_PASS}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASS}
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./sql/init_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./sql/init_seed_basic.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  app:
+    build: .
+    ports:
+      - "127.0.0.1:8081:80"
+    environment:
+      DB_HOST: db
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - uploads:/var/www/html/uploads
+
+volumes:
+  dbdata:
+  uploads:

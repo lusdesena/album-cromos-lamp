@@ -1,0 +1,7 @@
+.git
+config.php
+uploads/
+.env
+.pre-commit-config.yaml
+sql/local/
+docs/
