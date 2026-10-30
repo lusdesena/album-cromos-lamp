@@ -36,7 +36,7 @@ jobs:
       - uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8
         with:
           image-ref: album-cromos-lamp:sha-${{ github.sha }}
-          severity: UNKOWN,LOW,MEDIUM,HIGH,CRITICAL
+          severity: UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL
           exit-code: 0
           ignore-unfixed: false
 
