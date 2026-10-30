@@ -37,6 +37,6 @@ jobs:
         with:
           image-ref: album-cromos-lamp:sha-${{ github.sha }}
           severity: HIGH,CRITICAL
-          exit-code: 0
-          ignore-unfixed: false
+          exit-code: 1
+          ignore-unfixed: true
 
