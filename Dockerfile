@@ -12,6 +12,7 @@ COPY . .
 RUN find . -name '*.php' -print0 | xargs -0 -n1 php -l
 
 FROM php:${PHP_VERSION}-apache AS runtime
+LABEL org.opencontainers.image.source="https://github.com/lusdesena/album-cromos-lamp"
 COPY --from=builder /usr/local/lib/php/extensions /usr/local/lib/php/extensions/
 COPY --from=builder /usr/local/etc/php/conf.d/docker-php-ext-mysqli.ini /usr/local/etc/php/conf.d/
 RUN echo "ServerName localhost" > /etc/apache2/conf-available/servername.conf \

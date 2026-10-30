@@ -24,6 +24,11 @@ jobs:
   image:
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: read
+      packages: write
+    env:
+      IMAGE: ghcr.io/lusdesena/album-cromos-lamp:sha-${{ github.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069  # v4.4.1
@@ -32,11 +37,22 @@ jobs:
           context: .
           push: false
           load: true
-          tags: album-cromos-lamp:sha-${{ github.sha }}
-      - uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8
+          tags: ${{ env.IMAGE }}
+      - uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25  # v0.36.0
         with:
-          image-ref: album-cromos-lamp:sha-${{ github.sha }}
+          image-ref: ${{ env.IMAGE }}
           severity: HIGH,CRITICAL
           exit-code: 1
           ignore-unfixed: true
-
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6  # v4.7.0
+        if: github.event_name == 'push'
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push image and record digest
+        id: push
+        if: github.event_name == 'push'
+        run: |
+          docker push "$IMAGE"
+          echo "digest=$(docker inspect --format='{{index .RepoDigests 0}}' "$IMAGE")" >> "$GITHUB_OUTPUT"
