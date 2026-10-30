@@ -33,3 +33,10 @@ jobs:
           push: false
           load: true
           tags: album-cromos-lamp:sha-${{ github.sha }}
+      - uses: aquasecurity/trivy-action@a9c7b0f06e461e9d4b4d1711f154ee024b8d7ab8
+        with:
+          image-ref: album-cromos-lamp:sha-${{ github.sha }}
+          severity: HIGH, CRITICAL
+          exit-code: 1
+          ignore unfixed: true
+
