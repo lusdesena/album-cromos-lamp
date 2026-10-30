@@ -1,0 +1,4 @@
+config:
+  MD013: false # line-length: prosa larga, no se reajusta
+  MD004: false # ul-style: dash o asterisco
+  MD032: false # blanks-around-lists

@@ -1,4 +1,3 @@
-````markdown
 # 📸 Àlbum de Cromos – Aplicació LAMP
 
 Aplicació web **LAMP** (Linux · Apache · MariaDB · PHP) per a la gestió d’un **àlbum de cromos digital** orientat a entorns educatius (ABP).
@@ -37,7 +36,7 @@ El **professorat** té accés de **lectura** a tots els àlbums.
 ```bash
 sudo apt update
 sudo apt install -y apache2 mariadb-server php php-mysql
-````
+```
 
 ---
 
@@ -92,7 +91,7 @@ sudo systemctl reload apache2
 
 Afegeix al `/etc/hosts` (client o servidor):
 
-```
+```text
 IP_DEL_SERVIDOR   album.test
 ```
 
@@ -129,7 +128,7 @@ php -r 'echo password_hash("PASSWORD", PASSWORD_DEFAULT), PHP_EOL;'
 
 Substitueix els placeholders a `sql/init_data.sql`:
 
-```
+```text
 __HASH_PROFE__
 __HASH_GRUP1__
 ...
@@ -173,7 +172,7 @@ Edita `config.php` i ajusta:
 
 ## 📁 Estructura del projecte
 
-```
+```text
 assets/        → img + css
 sql/         → scripts SQL (init_schema, init_data)
 ```
@@ -186,4 +185,3 @@ Projecte pensat per:
 
 * CFGM SMX
 * Aprenentatge Basat en Projectes (ABP)
-
